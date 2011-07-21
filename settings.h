@@ -2,7 +2,7 @@
 #define SETTINGS_H
 namespace conf {
     
-    const int WIDTH = 2500;  //width and height of simulation
+    const int WIDTH = 3000;  //width and height of simulation
     const int HEIGHT = 1000;
     const int WWIDTH = 1800;  //window width and height
     const int WHEIGHT = 1000;

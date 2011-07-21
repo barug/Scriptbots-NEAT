@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "helpers.h"
 #include "vmath.h"
+#include <stdio.h>
 
 using namespace std;
 
@@ -70,6 +71,19 @@ void World::update()
             agents[i].health -= baseloss;
         }
     }
+    
+    //process temperature preferences
+    for (int i=0;i<agents.size();i++) {
+    
+        //calculate temperature at the agents spot. (based on distance from equator)
+        float dd= 2.0*abs(agents[i].pos.x/conf::WIDTH - 0.5);
+        agents[i].health -= 0.001*abs(dd-agents[i].temperature_preference);
+    }
+
+    //process indicator (used in drawing)
+    for (int i=0;i<agents.size();i++){
+        if(agents[i].indicator>0) agents[i].indicator -= 1;
+    }
 
     //remove dead agents.
     //first distribute foods
@@ -92,8 +106,8 @@ void World::update()
                     if (agents[j].health>0 && agents[j].herbivore<0.7) {
                         float d= (agents[i].pos-agents[j].pos).length();
                         if (d<conf::FOOD_DISTRIBUTION_RADIUS) {
-                            agents[j].health += 3*(1-agents[j].herbivore)*(1-agents[j].herbivore)/numaround;
-                            agents[j].repcounter -= 2*(1-agents[j].herbivore)*(1-agents[j].herbivore)/numaround; //good job, can use spare parts to make copies
+                            agents[j].health += 3*(1-agents[j].herbivore)/numaround;
+                            agents[j].repcounter -= 2*(1-agents[j].herbivore)/numaround; //good job, can use spare parts to make copies
                             if (agents[j].health>2) agents[j].health=2; //cap it!
                             agents[j].initEvent(30,1,1,1); //white means they ate! nice
                         }
@@ -137,7 +151,7 @@ void World::update()
             //add new agent
             addRandomBots(1);
         }
-        if (modcounter%200==0) {
+        if (modcounter%150==0) {
             if (randf(0,1)<0.5)
                 addRandomBots(1); //every now and then add random bots in
             else
@@ -150,8 +164,8 @@ void World::update()
 
 void World::setInputs()
 {
-    //P1 R1 G1 B1 FOOD P2 R2 G2 B2 SOUND SMELL HEALTH P3 R3 G3 B3 CLOCK1 CLOCK 2 HEARING     BLOOD_SENSOR
-    //0   1  2  3  4   5   6  7 8   9     10     11   12 13 14 15 16       17      18           19
+    //P1 R1 G1 B1 FOOD P2 R2 G2 B2 SOUND SMELL HEALTH P3 R3 G3 B3 CLOCK1 CLOCK 2 HEARING     BLOOD_SENSOR   TEMPERATURE_SENSOR
+    //0   1  2  3  4   5   6  7 8   9     10     11   12 13 14 15 16       17      18           19                 20
 
     float PI8=M_PI/8/2; //pi/8/2
     float PI38= 3*PI8; //3pi/8/2
@@ -287,6 +301,12 @@ void World::setInputs()
         a->in[17]= abs(sin(modcounter/a->clockf2));
         a->in[18]= cap(hearaccum);
         a->in[19]= cap(blood);
+        
+        //temperature varies from 0 to 1 across screen.
+        //it is 0 at equator (in middle), and 1 on edges. Agents can sense discomfort
+        float dd= 2.0*abs(a->pos.x/conf::WIDTH - 0.5);
+        float discomfort= abs(dd - a->temperature_preference);
+        a->in[20]= discomfort;        
     }
 }
 
@@ -364,7 +384,7 @@ void World::processOutputs()
             //agent eats the food
             float itk=min(f,conf::FOODINTAKE);
             float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)/2 + 0.5;
-            itk= itk*agents[i].herbivore*agents[i].herbivore*speedmul; //herbivores gain more from ground food
+            itk= itk*agents[i].herbivore*speedmul; //herbivores gain more from ground food
             agents[i].health+= itk;
             agents[i].repcounter -= 3*itk;
             food[cx][cy]-= min(f,conf::FOODWASTE);

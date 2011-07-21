@@ -64,9 +64,9 @@ GLView::GLView(World *s) :
         lastUpdate(0)
 {
 
-    xtranslate= 0.0;
-    ytranslate= 0.0;
-    scalemult= 1.0;
+    xtranslate= 75.0; //0.0;
+    ytranslate= 166.0; //0.0;
+    scalemult= 0.56; //1.0;
     downb[0]=0;downb[1]=0;downb[2]=0;
     mousex=0;mousey=0;
     
@@ -88,8 +88,10 @@ void GLView::processMouse(int button, int state, int x, int y)
 {
     //printf("MOUSE EVENT: button=%i state=%i x=%i y=%i\n", button, state, x, y);
     
-    //have world deal with it
-    world->processMouse(button, state, x, y);
+    //have world deal with it. First translate to world coordinates though
+    int wx= (int) ((x-xtranslate)/scalemult);
+    int wy= (int) ((y-ytranslate)/scalemult);
+    world->processMouse(button, state, wx, wy);
     
     mousex=x; mousey=y;
     downb[button]=1-state; //state is backwards, ah well
@@ -111,9 +113,10 @@ void GLView::processMouseActiveMotion(int x, int y)
         ytranslate += (y-mousey);
     }
     
+//    printf("%f %f %f \n", scalemult, xtranslate, ytranslate);
+    
     mousex=x;
     mousey=y;
-
 }
 
 void GLView::processNormalKeys(unsigned char key, int x, int y)
@@ -141,7 +144,7 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         drawfood=!drawfood;
     } else if (key=='c') {
         world->setClosed( !world->isClosed() );
-        printf("Environemt closed now= %b\n",world->isClosed());
+        printf("Environemt closed now= %i\n",world->isClosed());
     } else {
         printf("Unknown key pressed: %i\n", key);
     }
@@ -268,15 +271,13 @@ void GLView::drawAgent(const Agent& agent)
         glEnd();
     }
 
-    //TODO Fix event drawing
     //draw indicator of this agent... used for various events
-//     if (agent.indicator>0) {
-//         glBegin(GL_POLYGON);
-//         glColor3f(agent.ir,agent.ig,agent.ib);
-//         drawCircle(agent.pos.x, agent.pos.y, conf::BOTRADIUS+((int)agent.indicator));
-//         glEnd();
-//         agent.indicator-=1;
-//     }
+     if (agent.indicator>0) {
+         glBegin(GL_POLYGON);
+         glColor3f(agent.ir,agent.ig,agent.ib);
+         drawCircle(agent.pos.x, agent.pos.y, conf::BOTRADIUS+((int)agent.indicator));
+         glEnd();
+     }
 
     //viewcone of this agent
     glBegin(GL_LINES);

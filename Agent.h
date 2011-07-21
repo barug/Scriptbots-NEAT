@@ -46,6 +46,7 @@ public:
     bool hybrid; //is this agent result of crossover?
     float clockf1, clockf2; //the frequencies of the two clocks of this bot
     float soundmul; //sound multiplier of this bot. It can scream, or be very sneaky. This is actually always set to output 8
+    
     //variables for drawing purposes
     float indicator;
     float ir;float ig;float ib; //indicator colors
@@ -60,7 +61,8 @@ public:
     float herbivore; //is this agent a herbivore? between 0 and 1
     float MUTRATE1; //how often do mutations occur?
     float MUTRATE2; //how significant are they?
-
+    float temperature_preference; //what temperature does this agent like? [0 to 1]
+    
     DWRAONBrain brain; //THE BRAIN!!!!
     
     //will store the mutations that this agent has from its parent
