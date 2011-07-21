@@ -64,6 +64,12 @@ GLView::GLView(World *s) :
         lastUpdate(0)
 {
 
+    xtranslate= 0.0;
+    ytranslate= 0.0;
+    scalemult= 1.0;
+    downb[0]=0;downb[1]=0;downb[2]=0;
+    mousex=0;mousey=0;
+    
 }
 
 GLView::~GLView()
@@ -78,46 +84,35 @@ void GLView::changeSize(int w, int h)
     glOrtho(0,conf::WWIDTH,conf::WHEIGHT,0,0,1);
 }
 
-// class UnderMousePredicate {
-//     UnderMousePredicate(int x, int y) : X(x), Y(y) {}
-//
-//     bool operator()(Agent a) {
-//         float mind=1e10;
-//         float d;
-//         d= pow(X-a.pos.x,2)+pow(Y-a.pos.y,2);
-//         if (d<mind) {
-//             mind=d;
-//             return true;
-//         }
-//     }
-//     int X;
-//     int Y;
-// };
 void GLView::processMouse(int button, int state, int x, int y)
 {
-    // TODO Fix the mouse processing 
-//     if (state==0) {
-//         float mind=1e10;
-//         float mini=-1;
-//         float d;
-
-//         for (agents
-//         for (int i=0;i<agents.size();i++) {
-//             d= pow(x-agent.pos.x,2)+pow(y-agent.pos.y,2);
-//                 if (d<mind) {
-//                     mind=d;
-//                     mini=i;
-//                 }
-//             }
-//         //toggle selection of this agent
-//         for (int i=0;i<agents.size();i++) agent.selectflag=false;
-//         agents[mini].selectflag= true;
-//         agents[mini].printSelf();
-//     }
+    //printf("MOUSE EVENT: button=%i state=%i x=%i y=%i\n", button, state, x, y);
+    
+    //have world deal with it
+    world->processMouse(button, state, x, y);
+    
+    mousex=x; mousey=y;
+    downb[button]=1-state; //state is backwards, ah well
 }
 
 void GLView::processMouseActiveMotion(int x, int y)
 {
+    //printf("MOUSE MOTION x=%i y=%i, %i %i %i\n", x, y, downb[0], downb[1], downb[2]);
+    
+    if(downb[1]==1){
+        //mouse wheel. Change scale
+        scalemult -= 0.001*(y-mousey);
+        if(scalemult<0.01) scalemult=0.01;
+    }
+    
+    if(downb[2]==1){
+        //right mouse button. Pan around
+        xtranslate += (x-mousex);
+        ytranslate += (y-mousey);
+    }
+    
+    mousex=x;
+    mousey=y;
 
 }
 
@@ -187,7 +182,10 @@ void GLView::renderScene()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
-
+    
+    glTranslatef(xtranslate, ytranslate, 0.0f);    
+    glScalef(scalemult, scalemult, 1.0f);
+    
     world->draw(this, drawfood);
 
     glPopMatrix();

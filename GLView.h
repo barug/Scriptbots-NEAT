@@ -49,6 +49,12 @@ private:
     int lastUpdate;
     int frames;
     
+    
+    float scalemult;
+    float xtranslate, ytranslate;
+    int downb[3];
+    int mousex, mousey;
+    
 };
 
 #endif // GLVIEW_H

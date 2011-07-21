@@ -432,7 +432,7 @@ void World::processOutputs()
 
 void World::brainsTick()
 {
-#pragma omp parallel for
+    #pragma omp parallel for
     for (int i=0;i<agents.size();i++) {
         agents[i].tick();
     }
@@ -537,6 +537,27 @@ bool World::isClosed() const
 }
 
 
+void World::processMouse(int button, int state, int x, int y)
+{
+     if (state==0) {        
+         float mind=1e10;
+         float mini=-1;
+         float d;
+
+         for (int i=0;i<agents.size();i++) {
+             d= pow(x-agents[i].pos.x,2)+pow(y-agents[i].pos.y,2);
+                 if (d<mind) {
+                     mind=d;
+                     mini=i;
+                 }
+             }
+         //toggle selection of this agent
+         for (int i=0;i<agents.size();i++) agents[i].selectflag=false;
+         agents[mini].selectflag= true;
+         agents[mini].printSelf();
+     }
+}
+     
 void World::draw(View* view, bool drawfood)
 {
     if(drawfood) {
@@ -551,7 +572,6 @@ void World::draw(View* view, bool drawfood)
     for ( it = agents.begin(); it != agents.end(); ++it) {
         view->drawAgent(*it);
     }
-
 }
 
 std::pair< int,int > World::numHerbCarnivores() const

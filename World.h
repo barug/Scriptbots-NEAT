@@ -30,6 +30,9 @@ public:
     int numAgents() const;
     int epoch() const;
     
+    //mouse interaction
+    void processMouse(int button, int state, int x, int y);
+    
 private:
     void setInputs();
     void processOutputs();
