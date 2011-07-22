@@ -8,8 +8,7 @@
 
 #define INPUTSIZE 21
 #define OUTPUTSIZE 9
-
-#define BRAINSIZE 70
+#define BRAINSIZE 50
 #define CONNS 3
 
 

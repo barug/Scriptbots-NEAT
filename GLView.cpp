@@ -89,9 +89,11 @@ void GLView::processMouse(int button, int state, int x, int y)
     //printf("MOUSE EVENT: button=%i state=%i x=%i y=%i\n", button, state, x, y);
     
     //have world deal with it. First translate to world coordinates though
-    int wx= (int) ((x-xtranslate)/scalemult);
-    int wy= (int) ((y-ytranslate)/scalemult);
-    world->processMouse(button, state, wx, wy);
+    if(button==0){
+        int wx= (int) ((x-xtranslate)/scalemult);
+        int wy= (int) ((y-ytranslate)/scalemult);
+        world->processMouse(button, state, wx, wy);
+    }
     
     mousex=x; mousey=y;
     downb[button]=1-state; //state is backwards, ah well

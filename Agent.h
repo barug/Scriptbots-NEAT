@@ -2,6 +2,7 @@
 #define AGENT_H
 
 #include "DWRAONBrain.h"
+#include "MLPBrain.h"
 #include "vmath.h"
 
 #include <vector>
@@ -38,6 +39,8 @@ public:
     float spikeLength;
     int age;
 
+    bool spiked;    
+    
     std::vector<float> in; //input: 2 eyes, sensors for R,G,B,proximity each, then Sound, Smell, Health
     std::vector<float> out; //output: Left, Right, R, G, B, SPIKE
 
@@ -63,7 +66,8 @@ public:
     float MUTRATE2; //how significant are they?
     float temperature_preference; //what temperature does this agent like? [0 to 1]
     
-    DWRAONBrain brain; //THE BRAIN!!!!
+//    DWRAONBrain brain; //THE BRAIN!!!!
+    MLPBrain brain;
     
     //will store the mutations that this agent has from its parent
     //can be used to tune the mutation rate

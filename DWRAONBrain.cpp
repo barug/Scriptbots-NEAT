@@ -36,6 +36,7 @@ DWRAONBrain::DWRAONBrain()
         boxes[i].out= a.out;
         boxes[i].target= a.target;
         boxes[i].type= a.type;
+        boxes[i].kp= a.kp;
         boxes[i].bias= a.bias;
         for (int j=0;j<CONNS;j++) {
             boxes[i].notted[j]= a.notted[j];

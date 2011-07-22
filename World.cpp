@@ -48,6 +48,11 @@ void World::update()
         fy=randi(0,FH);
         food[fx][fy]= conf::FOODMAX;
     }
+    
+    //reset any counter variables per agent
+    for(int i=0;i<agents.size();i++){
+        agents[i].spiked= false;
+    }
 
     //give input to every agent. Sets in[] array
     setInputs();
@@ -60,13 +65,13 @@ void World::update()
 
     //process bots: health and deaths
     for (int i=0;i<agents.size();i++) {
-        float baseloss= 0.0002 + 0.0001*(abs(agents[i].w1) + abs(agents[i].w2))/2;
-        if (agents[i].w1<0.1 && agents[i].w2<0.1) baseloss=0.0001; //hibernation :p
-        baseloss += 0.00005*agents[i].soundmul; //shouting costs energy. just a tiny bit
+        float baseloss= 0.0002; // + 0.0001*(abs(agents[i].w1) + abs(agents[i].w2))/2;
+        //if (agents[i].w1<0.1 && agents[i].w2<0.1) baseloss=0.0001; //hibernation :p
+        //baseloss += 0.00005*agents[i].soundmul; //shouting costs energy. just a tiny bit
 
         if (agents[i].boost) {
             //boost carries its price, and it's pretty heavy!
-            agents[i].health -= baseloss*conf::BOOSTSIZEMULT*2;
+            agents[i].health -= baseloss*conf::BOOSTSIZEMULT;
         } else {
             agents[i].health -= baseloss;
         }
@@ -77,7 +82,10 @@ void World::update()
     
         //calculate temperature at the agents spot. (based on distance from equator)
         float dd= 2.0*abs(agents[i].pos.x/conf::WIDTH - 0.5);
-        agents[i].health -= 0.001*abs(dd-agents[i].temperature_preference);
+        float discomfort= abs(dd-agents[i].temperature_preference);
+        discomfort= discomfort*discomfort;
+        if (discomfort<0.2) discomfort=0;
+        agents[i].health -= 0.002*discomfort;
     }
 
     //process indicator (used in drawing)
@@ -88,7 +96,10 @@ void World::update()
     //remove dead agents.
     //first distribute foods
     for (int i=0;i<agents.size();i++) {
-        if (agents[i].health<=0) {
+        //if this agent was spiked this round as well (i.e. killed). This will make it so that
+        //natural deaths can't be capitalized on. I feel I must do this or otherwise agents
+        //will sit on spot and wait for things to die around them. They must do work!
+        if (agents[i].health<=0 && agents[i].spiked) { 
             //distribute its food. It will be erased soon
             //first figure out how many are around, to distribute this evenly
             int numaround=0;
@@ -103,11 +114,11 @@ void World::update()
             if (numaround>0) {
                 //distribute its food evenly
                 for (int j=0;j<agents.size();j++) {
-                    if (agents[j].health>0 && agents[j].herbivore<0.7) {
+                    if (agents[j].health>0) {
                         float d= (agents[i].pos-agents[j].pos).length();
                         if (d<conf::FOOD_DISTRIBUTION_RADIUS) {
-                            agents[j].health += 3*(1-agents[j].herbivore)/numaround;
-                            agents[j].repcounter -= 2*(1-agents[j].herbivore)/numaround; //good job, can use spare parts to make copies
+                            agents[j].health += 5*(1-agents[j].herbivore)/numaround;
+                            agents[j].repcounter -= 4*(1-agents[j].herbivore)/numaround; //good job, can use spare parts to make copies
                             if (agents[j].health>2) agents[j].health=2; //cap it!
                             agents[j].initEvent(30,1,1,1); //white means they ate! nice
                         }
@@ -135,14 +146,6 @@ void World::update()
         }
     }
 
-    //environment tick
-    for (int x=0;x<FW;x++) {
-        for (int y=0;y<FH;y++) {
-            food[x][y]+= conf::FOODGROWTH; //food grows
-            if (food[x][y]>conf::FOODMAX)food[x][y]=conf::FOODMAX; //cap at conf::FOODMAX
-        }
-    }
-
     //add new agents, if environment isn't closed
     if (!CLOSED) {
         //make sure environment is always populated with at least NUMBOTS bots
@@ -151,10 +154,10 @@ void World::update()
             //add new agent
             addRandomBots(1);
         }
-        if (modcounter%150==0) {
-            if (randf(0,1)<0.5)
+        if (modcounter%100==0) {
+            if (randf(0,1)<0.5){
                 addRandomBots(1); //every now and then add random bots in
-            else
+            }else
                 addNewByCrossover(); //or by crossover
         }
     }
@@ -383,7 +386,7 @@ void World::processOutputs()
         if (f>0 && agents[i].health<2) {
             //agent eats the food
             float itk=min(f,conf::FOODINTAKE);
-            float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)/2 + 0.5;
+            float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)*0.66 + 0.33;
             itk= itk*agents[i].herbivore*speedmul; //herbivores gain more from ground food
             agents[i].health+= itk;
             agents[i].repcounter -= 3*itk;
@@ -413,8 +416,14 @@ void World::processOutputs()
     //process spike dynamics for carnivors
     if (modcounter%2==0) { //we dont need to do this TOO often. can save efficiency here since this is n^2 op in #agents
         for (int i=0;i<agents.size();i++) {
+
+            //NOTE: herbivore cant attack. TODO: hmmmmm
+            //fot now ok: I want herbivores to run away from carnivores, not kill them back
+            if(agents[i].herbivore>0.8 || agents[i].spikeLength<0.2 || agents[i].w1<0.5 || agents[i].w2<0.5) continue; 
+            
             for (int j=0;j<agents.size();j++) {
-                if (i==j || agents[i].spikeLength<0.2 || agents[i].w1<0.3 || agents[i].w2<0.3) continue;
+                
+                if (i==j) continue;
                 float d= (agents[i].pos-agents[j].pos).length();
 
                 if (d<2*conf::BOTRADIUS) {
@@ -443,6 +452,8 @@ void World::processOutputs()
                             //this is done so that the other agent cant right away "by accident" attack this agent
                             agents[j].spikeLength= 0;
                         }
+                        
+                        agents[j].spiked= true; //set a flag saying that this agent was hit this turn
                     }
                 }
             }
