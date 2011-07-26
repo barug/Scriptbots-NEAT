@@ -28,8 +28,8 @@ int main(int argc, char **argv) {
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowPosition(30,30);
     glutInitWindowSize(conf::WWIDTH,conf::WHEIGHT);
-    glutCreateWindow("TEST");
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glutCreateWindow("Scriptbots");
+    glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glutDisplayFunc(gl_renderScene);
     glutIdleFunc(gl_handleIdle);
     glutReshapeFunc(gl_changeSize);

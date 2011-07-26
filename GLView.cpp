@@ -64,9 +64,9 @@ GLView::GLView(World *s) :
         lastUpdate(0)
 {
 
-    xtranslate= 75.0; //0.0;
-    ytranslate= 166.0; //0.0;
-    scalemult= 0.56; //1.0;
+    xtranslate= 0.0;
+    ytranslate= 0.0;
+    scalemult= 0.2; //1.0;
     downb[0]=0;downb[1]=0;downb[2]=0;
     mousex=0;mousey=0;
     
@@ -90,8 +90,8 @@ void GLView::processMouse(int button, int state, int x, int y)
     
     //have world deal with it. First translate to world coordinates though
     if(button==0){
-        int wx= (int) ((x-xtranslate)/scalemult);
-        int wy= (int) ((y-ytranslate)/scalemult);
+        int wx= (int) ((x-conf::WWIDTH/2)/scalemult)-xtranslate;
+        int wy= (int) ((y-conf::WHEIGHT/2)/scalemult)-ytranslate;
         world->processMouse(button, state, wx, wy);
     }
     
@@ -105,14 +105,14 @@ void GLView::processMouseActiveMotion(int x, int y)
     
     if(downb[1]==1){
         //mouse wheel. Change scale
-        scalemult -= 0.001*(y-mousey);
+        scalemult -= 0.002*(y-mousey);
         if(scalemult<0.01) scalemult=0.01;
     }
     
     if(downb[2]==1){
         //right mouse button. Pan around
-        xtranslate += (x-mousex);
-        ytranslate += (y-mousey);
+        xtranslate += 2*(x-mousex);
+        ytranslate += 2*(y-mousey);
     }
     
 //    printf("%f %f %f \n", scalemult, xtranslate, ytranslate);
@@ -144,6 +144,10 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         skipdraw--;
     } else if (key=='f') {
         drawfood=!drawfood;
+    } else if (key=='a') {
+        for (int i=0;i<10;i++){world->addNewByCrossover();}
+    } else if (key=='q') {
+        for (int i=0;i<10;i++){world->addCarnivore();}
     } else if (key=='c') {
         world->setClosed( !world->isClosed() );
         printf("Environemt closed now= %i\n",world->isClosed());
@@ -187,9 +191,10 @@ void GLView::renderScene()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
-    
-    glTranslatef(xtranslate, ytranslate, 0.0f);    
+
+    glTranslatef(conf::WWIDTH/2, conf::WHEIGHT/2, 0.0f);    
     glScalef(scalemult, scalemult, 1.0f);
+    glTranslatef(xtranslate, ytranslate, 0.0f);    
     
     world->draw(this, drawfood);
 

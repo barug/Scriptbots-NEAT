@@ -10,14 +10,17 @@ MLPBox::MLPBox()
 
     //constructor
     for (int i=0;i<CONNS;i++) {
-        w[i]= randf(-1,1);
+        w[i]= randf(-3,3);
+        if(randf(0,1)<0.5) w[i]=0; //make brains sparse
+        
         id[i]= randi(0,BRAINSIZE);
         if (randf(0,1)<0.2) id[i]= randi(0,INPUTSIZE); //20% of the brain AT LEAST should connect to input.
     }
 
-    kp= randf(0.1,1);
-    gw= randf(0,3);
-    bias= randf(-3,3);
+//    kp= randf(0.1,1);
+    kp=1;
+    gw= randf(0,5);
+    bias= randf(-1,1);
 
     out=0;
     target=0;
@@ -136,7 +139,7 @@ void MLPBrain::mutate(float MR, float MR2)
         }
 
         //more unlikely changes here
-        if (randf(0,1)<MR) {
+        if (randf(0,1)<MR*3) {
             int rc= randi(0, CONNS);
             int ri= randi(0,BRAINSIZE);
             boxes[j].id[rc]= ri;

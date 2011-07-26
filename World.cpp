@@ -71,7 +71,7 @@ void World::update()
 
         if (agents[i].boost) {
             //boost carries its price, and it's pretty heavy!
-            agents[i].health -= baseloss*conf::BOOSTSIZEMULT;
+            agents[i].health -= baseloss*conf::BOOSTSIZEMULT*1.3;
         } else {
             agents[i].health -= baseloss;
         }
@@ -84,8 +84,8 @@ void World::update()
         float dd= 2.0*abs(agents[i].pos.x/conf::WIDTH - 0.5);
         float discomfort= abs(dd-agents[i].temperature_preference);
         discomfort= discomfort*discomfort;
-        if (discomfort<0.2) discomfort=0;
-        agents[i].health -= 0.002*discomfort;
+        if (discomfort<0.08) discomfort=0;
+        agents[i].health -= 0.005*discomfort;
     }
 
     //process indicator (used in drawing)
@@ -100,6 +100,7 @@ void World::update()
         //natural deaths can't be capitalized on. I feel I must do this or otherwise agents
         //will sit on spot and wait for things to die around them. They must do work!
         if (agents[i].health<=0 && agents[i].spiked) { 
+        
             //distribute its food. It will be erased soon
             //first figure out how many are around, to distribute this evenly
             int numaround=0;
@@ -111,14 +112,21 @@ void World::update()
                     }
                 }
             }
+            
+            //young killed agents should give very little resources
+            //at age 5, they mature and give full. This can also help prevent
+            //agents eating their young right away
+            float agemult= 1.0;
+            if(agents[i].age<5) agemult= agents[i].age*0.2;
+            
             if (numaround>0) {
                 //distribute its food evenly
                 for (int j=0;j<agents.size();j++) {
                     if (agents[j].health>0) {
                         float d= (agents[i].pos-agents[j].pos).length();
                         if (d<conf::FOOD_DISTRIBUTION_RADIUS) {
-                            agents[j].health += 5*(1-agents[j].herbivore)/numaround;
-                            agents[j].repcounter -= 4*(1-agents[j].herbivore)/numaround; //good job, can use spare parts to make copies
+                            agents[j].health += 5*(1-agents[j].herbivore)*(1-agents[j].herbivore)/pow(numaround,1.25)*agemult;
+                            agents[j].repcounter -= 6*(1-agents[j].herbivore)*(1-agents[j].herbivore)/pow(numaround,1.25)*agemult; //good job, can use spare parts to make copies
                             if (agents[j].health>2) agents[j].health=2; //cap it!
                             agents[j].initEvent(30,1,1,1); //white means they ate! nice
                         }
@@ -139,7 +147,7 @@ void World::update()
 
     //handle reproduction
     for (int i=0;i<agents.size();i++) {
-        if (agents[i].repcounter<0 && agents[i].health>0.65) { //agent is healthy and is ready to reproduce
+        if (agents[i].repcounter<0 && agents[i].health>0.65 && modcounter%15==0 && randf(0,1)<0.1) { //agent is healthy and is ready to reproduce. Also inject a bit non-determinism
             //agents[i].health= 0.8; //the agent is left vulnerable and weak, a bit
             reproduce(i, agents[i].MUTRATE1, agents[i].MUTRATE2); //this adds conf::BABIES new agents to agents[]
             agents[i].repcounter= agents[i].herbivore*randf(conf::REPRATEH-0.1,conf::REPRATEH+0.1) + (1-agents[i].herbivore)*randf(conf::REPRATEC-0.1,conf::REPRATEC+0.1);
@@ -386,7 +394,7 @@ void World::processOutputs()
         if (f>0 && agents[i].health<2) {
             //agent eats the food
             float itk=min(f,conf::FOODINTAKE);
-            float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)*0.66 + 0.33;
+            float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)*0.6 + 0.4;
             itk= itk*agents[i].herbivore*speedmul; //herbivores gain more from ground food
             agents[i].health+= itk;
             agents[i].repcounter -= 3*itk;
@@ -477,6 +485,14 @@ void World::addRandomBots(int num)
         idcounter++;
         agents.push_back(a);
     }
+}
+void World::addCarnivore()
+{
+    Agent a;
+    a.id= idcounter;
+    idcounter++;
+    a.herbivore= randf(0, 0.1);
+    agents.push_back(a);
 }
 
 void World::addNewByCrossover()

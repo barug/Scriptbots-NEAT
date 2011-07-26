@@ -32,6 +32,10 @@ public:
     
     //mouse interaction
     void processMouse(int button, int state, int x, int y);
+
+    void addNewByCrossover();
+    void addRandomBots(int num);
+    void addCarnivore();
     
 private:
     void setInputs();
@@ -41,8 +45,6 @@ private:
     void writeReport();
     
     void reproduce(int ai, float MR, float MR2);
-    void addNewByCrossover();
-    void addRandomBots(int num);
     
     int modcounter;
     int current_epoch;

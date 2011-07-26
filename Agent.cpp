@@ -92,13 +92,14 @@ Agent Agent::reproduce(float MR, float MR2)
     if (randf(0,1)<0.2) a2.MUTRATE2= randn(this->MUTRATE2, conf::METAMUTRATE2);
     if (this->MUTRATE1<0.001) this->MUTRATE1= 0.001;
     if (this->MUTRATE2<0.02) this->MUTRATE2= 0.02;
-    a2.herbivore= cap(randn(this->herbivore, MR2*2));
+    a2.herbivore= cap(randn(this->herbivore, 0.03));
     if (randf(0,1)<MR*5) a2.clockf1= randn(a2.clockf1, MR2);
     if (a2.clockf1<2) a2.clockf1= 2;
     if (randf(0,1)<MR*5) a2.clockf2= randn(a2.clockf2, MR2);
     if (a2.clockf2<2) a2.clockf2= 2;
     
-    a2.temperature_preference= cap(randn(this->temperature_preference, 0.01));
+    a2.temperature_preference= cap(randn(this->temperature_preference, 0.005));
+//    a2.temperature_preference= this->temperature_preference;
     
     //mutate brain here
     a2.brain= this->brain;
