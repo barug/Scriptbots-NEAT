@@ -25,6 +25,10 @@ World::World() :
             food[x][y]= 0;
         }
     }
+    
+    numCarnivore.resize(200, 0);
+    numHerbivore.resize(200, 0);
+    ptr=0;
 }
 
 void World::update()
@@ -36,7 +40,15 @@ void World::update()
     if (modcounter%100==0) {
         for (int i=0;i<agents.size();i++) {
             agents[i].age+= 1;    //agents age...
-        }
+        }        
+    }
+    
+    if(modcounter%1000==0){
+        std::pair<int,int> num_herbs_carns = numHerbCarnivores();
+        numHerbivore[ptr]= num_herbs_carns.first;
+        numCarnivore[ptr]= num_herbs_carns.second;
+        ptr++;
+        if(ptr == numHerbivore.size()) ptr = 0;
     }
     if (modcounter%1000==0) writeReport();
     if (modcounter>=10000) {
@@ -85,7 +97,7 @@ void World::update()
         float discomfort= abs(dd-agents[i].temperature_preference);
         discomfort= discomfort*discomfort;
         if (discomfort<0.08) discomfort=0;
-        agents[i].health -= 0.005*discomfort;
+        agents[i].health -= conf::TEMPERATURE_DISCOMFORT*discomfort;
     }
 
     //process indicator (used in drawing)
@@ -126,7 +138,7 @@ void World::update()
                         float d= (agents[i].pos-agents[j].pos).length();
                         if (d<conf::FOOD_DISTRIBUTION_RADIUS) {
                             agents[j].health += 5*(1-agents[j].herbivore)*(1-agents[j].herbivore)/pow(numaround,1.25)*agemult;
-                            agents[j].repcounter -= 6*(1-agents[j].herbivore)*(1-agents[j].herbivore)/pow(numaround,1.25)*agemult; //good job, can use spare parts to make copies
+                            agents[j].repcounter -= conf::REPMULT*(1-agents[j].herbivore)*(1-agents[j].herbivore)/pow(numaround,1.25)*agemult; //good job, can use spare parts to make copies
                             if (agents[j].health>2) agents[j].health=2; //cap it!
                             agents[j].initEvent(30,1,1,1); //white means they ate! nice
                         }
@@ -180,6 +192,8 @@ void World::setInputs()
 
     float PI8=M_PI/8/2; //pi/8/2
     float PI38= 3*PI8; //3pi/8/2
+    float PI4= M_PI/4;
+    
     for (int i=0;i<agents.size();i++) {
         Agent* a= &agents[i];
 
@@ -192,19 +206,11 @@ void World::setInputs()
         a->in[4]= food[cx][cy]/conf::FOODMAX;
 
         //SOUND SMELL EYES
-        float p1,r1,g1,b1,p2,r2,g2,b2,p3,r3,g3,b3;
-        p1=0;
-        r1=0;
-        g1=0;
-        b1=0;
-        p2=0;
-        r2=0;
-        g2=0;
-        b2=0;
-        p3=0;
-        r3=0;
-        g3=0;
-        b3=0;
+        vector<float> p(NUMEYES,0);
+        vector<float> r(NUMEYES,0);
+        vector<float> g(NUMEYES,0);
+        vector<float> b(NUMEYES,0);
+                       
         float soaccum=0;
         float smaccum=0;
         float hearaccum=0;
@@ -224,90 +230,71 @@ void World::setInputs()
             if (d<conf::DIST) {
 
                 //smell
-                smaccum+= 0.3*(conf::DIST-d)/conf::DIST;
+                smaccum+= (conf::DIST-d)/conf::DIST;
 
                 //sound
-                soaccum+= 0.4*(conf::DIST-d)/conf::DIST*(max(fabs(a2->w1),fabs(a2->w2)));
+                soaccum+= (conf::DIST-d)/conf::DIST*(max(fabs(a2->w1),fabs(a2->w2)));
 
                 //hearing. Listening to other agents
                 hearaccum+= a2->soundmul*(conf::DIST-d)/conf::DIST;
 
                 float ang= (a2->pos- a->pos).get_angle(); //current angle between bots
-
-                //left and right eyes
-                float leyeangle= a->angle - PI8;
-                float reyeangle= a->angle + PI8;
-                float backangle= a->angle + M_PI;
+                
+                for(int q=0;q<NUMEYES;q++){
+                    float aa = a->angle + a->eyedir[q];
+                    if (aa<-M_PI) aa += 2*M_PI;
+                    if (aa>M_PI) aa -= 2*M_PI;
+                    
+                    float diff1= aa- ang;
+                    if (fabs(diff1)>M_PI) diff1= 2*M_PI- fabs(diff1);
+                    diff1= fabs(diff1);
+                    
+                    float fov = a->eyefov[q];
+                    if (diff1<fov) {
+                        //we see a2 with this eye. Accumulate stats
+                        float mul1= a->eyesensmod*(fabs(fov-diff1)/fov)*((conf::DIST-d)/conf::DIST);
+                        p[q] += mul1*(d/conf::DIST);
+                        r[q] += mul1*a2->red;
+                        g[q] += mul1*a2->gre;
+                        b[q] += mul1*a2->blu;
+                    }
+                }
+                
+                //blood sensor
                 float forwangle= a->angle;
-                if (leyeangle<-M_PI) leyeangle+= 2*M_PI;
-                if (reyeangle>M_PI) reyeangle-= 2*M_PI;
-                if (backangle>M_PI) backangle-= 2*M_PI;
-                float diff1= leyeangle- ang;
-                if (fabs(diff1)>M_PI) diff1= 2*M_PI- fabs(diff1);
-                diff1= fabs(diff1);
-                float diff2= reyeangle- ang;
-                if (fabs(diff2)>M_PI) diff2= 2*M_PI- fabs(diff2);
-                diff2= fabs(diff2);
-                float diff3= backangle- ang;
-                if (fabs(diff3)>M_PI) diff3= 2*M_PI- fabs(diff3);
-                diff3= fabs(diff3);
                 float diff4= forwangle- ang;
                 if (fabs(forwangle)>M_PI) diff4= 2*M_PI- fabs(forwangle);
                 diff4= fabs(diff4);
-
-                if (diff1<PI38) {
-                    //we see this agent with left eye. Accumulate info
-                    float mul1= conf::EYE_SENSITIVITY*((PI38-diff1)/PI38)*((conf::DIST-d)/conf::DIST);
-                    //float mul1= 100*((conf::DIST-d)/conf::DIST);
-                    p1 += mul1*(d/conf::DIST);
-                    r1 += mul1*a2->red;
-                    g1 += mul1*a2->gre;
-                    b1 += mul1*a2->blu;
-                }
-
-                if (diff2<PI38) {
-                    //we see this agent with left eye. Accumulate info
-                    float mul2= conf::EYE_SENSITIVITY*((PI38-diff2)/PI38)*((conf::DIST-d)/conf::DIST);
-                    //float mul2= 100*((conf::DIST-d)/conf::DIST);
-                    p2 += mul2*(d/conf::DIST);
-                    r2 += mul2*a2->red;
-                    g2 += mul2*a2->gre;
-                    b2 += mul2*a2->blu;
-                }
-
-                if (diff3<PI38) {
-                    //we see this agent with back eye. Accumulate info
-                    float mul3= conf::EYE_SENSITIVITY*((PI38-diff3)/PI38)*((conf::DIST-d)/conf::DIST);
-                    //float mul2= 100*((conf::DIST-d)/conf::DIST);
-                    p3 += mul3*(d/conf::DIST);
-                    r3 += mul3*a2->red;
-                    g3 += mul3*a2->gre;
-                    b3 += mul3*a2->blu;
-                }
-
                 if (diff4<PI38) {
-                    float mul4= conf::BLOOD_SENSITIVITY*((PI38-diff4)/PI38)*((conf::DIST-d)/conf::DIST);
+                    float mul4= ((PI38-diff4)/PI38)*((conf::DIST-d)/conf::DIST);
                     //if we can see an agent close with both eyes in front of us
                     blood+= mul4*(1-agents[j].health/2); //remember: health is in [0 2]
                     //agents with high life dont bleed. low life makes them bleed more
                 }
             }
         }
-
-        a->in[0]= cap(p1);
-        a->in[1]= cap(r1);
-        a->in[2]= cap(g1);
-        a->in[3]= cap(b1);
-        a->in[5]= cap(p2);
-        a->in[6]= cap(r2);
-        a->in[7]= cap(g2);
-        a->in[8]= cap(b2);
+        
+        smaccum *= a->smellmod;
+        soaccum *= a->soundmod;
+        hearaccum *= a->hearmod;
+        blood *= a->bloodmod;
+        
+        a->in[0]= cap(p[0]);
+        a->in[1]= cap(r[0]);
+        a->in[2]= cap(g[0]);
+        a->in[3]= cap(b[0]);
+        
+        a->in[5]= cap(p[1]);
+        a->in[6]= cap(r[1]);
+        a->in[7]= cap(g[1]);
+        a->in[8]= cap(b[1]);
         a->in[9]= cap(soaccum);
         a->in[10]= cap(smaccum);
-        a->in[12]= cap(p3);
-        a->in[13]= cap(r3);
-        a->in[14]= cap(g3);
-        a->in[15]= cap(b3);
+        
+        a->in[12]= cap(p[2]);
+        a->in[13]= cap(r[2]);
+        a->in[14]= cap(g[2]);
+        a->in[15]= cap(b[2]);
         a->in[16]= abs(sin(modcounter/a->clockf1));
         a->in[17]= abs(sin(modcounter/a->clockf2));
         a->in[18]= cap(hearaccum);
@@ -317,7 +304,13 @@ void World::setInputs()
         //it is 0 at equator (in middle), and 1 on edges. Agents can sense discomfort
         float dd= 2.0*abs(a->pos.x/conf::WIDTH - 0.5);
         float discomfort= abs(dd - a->temperature_preference);
-        a->in[20]= discomfort;        
+        a->in[20]= discomfort;
+        
+        a->in[21]= cap(p[3]);
+        a->in[22]= cap(r[3]);
+        a->in[23]= cap(g[3]);
+        a->in[24]= cap(b[3]);
+                
     }
 }
 
@@ -394,7 +387,7 @@ void World::processOutputs()
         if (f>0 && agents[i].health<2) {
             //agent eats the food
             float itk=min(f,conf::FOODINTAKE);
-            float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)*0.6 + 0.4;
+            float speedmul= (1-(abs(agents[i].w1)+abs(agents[i].w2))/2)*0.7 + 0.3;
             itk= itk*agents[i].herbivore*speedmul; //herbivores gain more from ground food
             agents[i].health+= itk;
             agents[i].repcounter -= 3*itk;
@@ -486,6 +479,33 @@ void World::addRandomBots(int num)
         agents.push_back(a);
     }
 }
+
+void World::positionOfInterest(int type, float &xi, float &yi) {
+    if(type==1){
+        //the interest of type 1 is the oldest agent
+        int maxage=-1;
+        int maxi=-1;
+        for(int i=0;i<agents.size();i++){
+           if(agents[i].age>maxage) { maxage = agents[i].age; maxi=i; }
+        }
+        if(maxi!=-1) {
+            xi = agents[maxi].pos.x;
+            yi = agents[maxi].pos.y;
+        }
+    } else if(type==2){
+        //interest of type 2 is the selected agent
+        int maxi=-1;
+        for(int i=0;i<agents.size();i++){
+           if(agents[i].selectflag==1) {maxi=i; break; }
+        }
+        if(maxi!=-1) {
+            xi = agents[maxi].pos.x;
+            yi = agents[maxi].pos.y;
+        }
+    }
+    
+}
+
 void World::addCarnivore()
 {
     Agent a;
@@ -494,6 +514,16 @@ void World::addCarnivore()
     a.herbivore= randf(0, 0.1);
     agents.push_back(a);
 }
+
+void World::addHerbivore()
+{
+    Agent a;
+    a.id= idcounter;
+    idcounter++;
+    a.herbivore= randf(0.9, 1);
+    agents.push_back(a);
+}
+
 
 void World::addNewByCrossover()
 {
@@ -607,6 +637,7 @@ void World::processMouse(int button, int state, int x, int y)
      
 void World::draw(View* view, bool drawfood)
 {
+    //draw food
     if(drawfood) {
         for(int i=0;i<FW;i++) {
             for(int j=0;j<FH;j++) {
@@ -615,10 +646,14 @@ void World::draw(View* view, bool drawfood)
             }
         }
     }
+    
+    //draw all agents
     vector<Agent>::const_iterator it;
     for ( it = agents.begin(); it != agents.end(); ++it) {
         view->drawAgent(*it);
     }
+    
+    view->drawMisc();
 }
 
 std::pair< int,int > World::numHerbCarnivores() const

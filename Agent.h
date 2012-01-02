@@ -2,6 +2,7 @@
 #define AGENT_H
 
 #include "DWRAONBrain.h"
+#include "AssemblyBrain.h"
 #include "MLPBrain.h"
 #include "vmath.h"
 
@@ -66,7 +67,17 @@ public:
     float MUTRATE2; //how significant are they?
     float temperature_preference; //what temperature does this agent like? [0 to 1]
     
+    float smellmod;
+    float soundmod;
+    float hearmod;
+    float eyesensmod;
+    float bloodmod;
+    
+    std::vector<float> eyefov; //field of view for each eye
+    std::vector<float> eyedir; //direction of each eye
+    
 //    DWRAONBrain brain; //THE BRAIN!!!!
+//    AssemblyBrain brain;
     MLPBrain brain;
     
     //will store the mutations that this agent has from its parent

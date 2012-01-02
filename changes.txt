@@ -1,5 +1,10 @@
-(current)
+1/1/2012 changes
+- made many more variables per agent customizable and inheritable (such as eye sensitivity etc)
+- added two more keys: 's' follows the selected agent around. 'o' follows the oldest agent around.
+- number of carnivores and herbivores are now visualized on top of the world
+- added a new type of brain: assembly brain, but it needs much more work. i.e. don't use
 
+v1.3
 - Fixed compilation issues on Linux
 - Ported to CMake build system
 

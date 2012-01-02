@@ -5,6 +5,7 @@
 #include "helpers.h"
 
 #include <vector>
+#include <stdio.h>
 
 class MLPBox {
 public:
@@ -13,6 +14,7 @@ public:
 
     std::vector<float> w; //weight of each connecting box
     std::vector<int> id; //id in boxes[] of the connecting box
+    std::vector<int> type; //0: regular synapse. 1: change-sensitive synapse
     float kp; //damper
     float gw; //global w
     float bias;
@@ -20,6 +22,7 @@ public:
     //state variables
     float target; //target value this node is going toward
     float out; //current output
+    float oldout; //output a tick ago
 };
 
 /**

@@ -25,6 +25,7 @@ public:
     
     virtual void drawAgent(const Agent &a);
     virtual void drawFood(int x, int y, float quantity);
+    virtual void drawMisc();
     
     void setWorld(World* w);
     
@@ -54,6 +55,8 @@ private:
     float xtranslate, ytranslate;
     int downb[3];
     int mousex, mousey;
+    
+    int following;
     
 };
 
