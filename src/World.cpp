@@ -15,7 +15,9 @@ World::World() :
         idcounter(0),
         FW(conf::WIDTH/conf::CZ),
         FH(conf::HEIGHT/conf::CZ),
-        CLOSED(false)
+        CLOSED(false),
+        cur_node_id(0),
+        cur_innov_num(0)
 {
     addRandomBots(conf::NUMBOTS);
     //inititalize food layer
@@ -172,16 +174,16 @@ void World::update()
         if (agents.size()<conf::NUMBOTS
            ) {
             //add new agent
-            cout << "adding agent" << endl;
+            //cout << "adding agent" << endl;
             addRandomBots(1);
         }
         if (modcounter%100==0) {
 
             //todo : fix this part
-
+            // maybe not we don't want random bots after bot have started to adapt
             if (randf(0,1)<0.5){
-                addRandomBots(1); //every now and then add random bots in
-                cout << "adding agent" << endl;
+                //addRandomBots(1); //every now and then add random bots in
+                //cout << "adding agent" << endl;
             }else
                 ;
                 //addNewByCrossover(); //or by crossover
@@ -569,7 +571,7 @@ void World::reproduce(int ai, float MR, float MR2)
     agents[ai].initEvent(30,0,0.8,0); //green event means agent reproduced.
     for (int i=0;i<conf::BABIES;i++) {
 
-        Agent a2 = agents[ai].reproduce(MR,MR2);
+        Agent a2 = agents[ai].reproduce(MR,MR2, innovations, cur_node_id, cur_innov_num);
         a2.id= idcounter;
         idcounter++;
         agents.push_back(a2);

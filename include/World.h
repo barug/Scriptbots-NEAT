@@ -1,6 +1,7 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include "NEAT/innovation.h"
 #include "View.h"
 #include "Agent.h"
 #include "settings.h"
@@ -58,6 +59,11 @@ private:
     int idcounter;
     
     std::vector<Agent> agents;
+
+    // ******* Member variables used during reproduction *******
+    std::vector<NEAT::Innovation*> innovations;  // For holding the genetic innovations of the newest generation
+    int cur_node_id;  //Current label number available
+    double cur_innov_num;
     
     // food
     int FW;

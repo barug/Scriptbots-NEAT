@@ -8,6 +8,7 @@
 #include "DWRAONBrain.h"
 #include "MLPBrain.h"
 #include "AssemblyBrain.h"
+#include "NEAT/innovation.h"
 
 using namespace std;
 Agent::Agent()
@@ -82,8 +83,11 @@ void Agent::tick()
 {
     brain.tick(in, out);
 }
-Agent Agent::reproduce(float MR, float MR2)
+Agent Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num)
 {
+    cout << "reproduction" << endl;
+    cout << "MR " << MR << endl;
+    cout << "MR2 " << MR2 << endl;
     bool BDEBUG = false;
     if(BDEBUG) printf("New birth---------------\n");
     Agent a2;
@@ -141,7 +145,7 @@ Agent Agent::reproduce(float MR, float MR2)
     
     //mutate brain here
     a2.brain= this->brain;
-    a2.brain.mutate(MR,MR2);
+    a2.brain.mutate(MR,MR2, innovations, cur_node_id, cur_innov_num);
     
     return a2;
 
