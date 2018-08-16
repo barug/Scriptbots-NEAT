@@ -18,18 +18,18 @@ if (OPENMP_FOUND)
 endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-include_directories(${CMAKE_CURRENT_BINARY_DIR} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+include_directories("include" ${CMAKE_CURRENT_BINARY_DIR} ${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
 
 set( SB_SRCS
-    View.cpp
-    GLView.cpp
-    main.cpp
-    DWRAONBrain.cpp
-    MLPBrain.cpp
-    AssemblyBrain.cpp
-    Agent.cpp
-    World.cpp
-    vmath.cpp )
+        src/View.cpp
+        src/GLView.cpp
+        src/main.cpp
+        src/DWRAONBrain.cpp
+        src/MLPBrain.cpp
+        src/AssemblyBrain.cpp
+        src/Agent.cpp
+        src/World.cpp
+        src/vmath.cpp)
 
 add_executable(scriptbots  ${SB_SRCS})
 
