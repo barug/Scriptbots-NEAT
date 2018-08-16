@@ -416,6 +416,17 @@ void Network::override_outputs(double* outvals) {
 
 }
 
+void Network::copy_outputs(std::vector<float> &dest) {
+	std::vector<NNode*>::iterator outPtr;
+	std::vector<float>::iterator destPtr;
+
+	for(destPtr = dest.begin(), outPtr = outputs.begin(); outPtr != outputs.end() && destPtr != dest.end(); ++outPtr, ++destPtr) {
+		//only load values into SENSORS (not BIASes)
+
+		*destPtr = (*outPtr)->get_active_out();
+	}
+}
+
 void Network::give_name(char *newname) {
 	char *temp;
 	char *temp2;

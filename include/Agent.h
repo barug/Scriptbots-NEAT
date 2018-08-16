@@ -4,6 +4,7 @@
 #include "DWRAONBrain.h"
 #include "AssemblyBrain.h"
 #include "MLPBrain.h"
+#include "NEAT/NeatBrain.h"
 #include "vmath.h"
 
 #include <vector>
@@ -78,7 +79,9 @@ public:
     
 //    DWRAONBrain brain; //THE BRAIN!!!!
 //    AssemblyBrain brain;
-    MLPBrain brain;
+//    MLPBrain brain;
+    NEATBrain brain;
+
     
     //will store the mutations that this agent has from its parent
     //can be used to tune the mutation rate

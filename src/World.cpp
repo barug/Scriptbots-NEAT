@@ -172,13 +172,20 @@ void World::update()
         if (agents.size()<conf::NUMBOTS
            ) {
             //add new agent
+            cout << "adding agent" << endl;
             addRandomBots(1);
         }
         if (modcounter%100==0) {
+
+            //todo : fix this part
+
             if (randf(0,1)<0.5){
                 addRandomBots(1); //every now and then add random bots in
+                cout << "adding agent" << endl;
             }else
-                addNewByCrossover(); //or by crossover
+                ;
+                //addNewByCrossover(); //or by crossover
+                //cout << "adding by crossover" << endl;
         }
     }
 

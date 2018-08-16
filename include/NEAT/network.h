@@ -109,6 +109,8 @@ namespace NEAT {
 		// activations with these values (for adaptation)
 		void override_outputs(double*);
 
+		void copy_outputs(std::vector<float> &dest);
+
 		// Name the network
 		void give_name(char*);
 

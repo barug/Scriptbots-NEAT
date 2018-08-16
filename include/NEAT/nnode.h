@@ -84,8 +84,8 @@ namespace NEAT {
 		functype ftype; // type is either SIGMOID ..or others that can be added
 		nodetype type; // type is either NEURON or SENSOR 
 
-		double activesum;  // The incoming activity before being processed 
-		double activation; // The total activation entering the NNode 
+		float activesum;  // The incoming activity before being processed
+		float activation; // The total activation entering the NNode
 		bool active_flag;  // To make sure outputs are active
 
 		// NOT USED IN NEAT - covered by "activation" above

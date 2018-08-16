@@ -242,7 +242,7 @@ void GLView::drawAgent(const Agent& agent)
         glPushMatrix();
         glTranslatef(agent.pos.x-80,agent.pos.y+20,0);
         //draw inputs, outputs
-        float col;
+  /*      float col;
         float yy=15;
         float xx=15;
         float ss=16;
@@ -264,14 +264,14 @@ void GLView::drawAgent(const Agent& agent)
             glVertex3f(xx+ss*j, yy+ss, 0.0f);
             glVertex3f(0+ss*j, yy+ss, 0.0f);
         }
-        yy+=ss*2;
+        yy+=ss*2;*/
 
         //draw brain. Eventually move this to brain class?
         
-        float offx=0;
+        /*float offx=0;
         ss=8;
-        xx=ss;
-        for (int j=0;j<BRAINSIZE;j++) {
+        xx=ss;*/
+     /*   for (int j=0;j<BRAINSIZE;j++) {
             col = agent.brain.boxes[j].out;
             glColor3f(col,col,col);
             
@@ -285,7 +285,7 @@ void GLView::drawAgent(const Agent& agent)
                 offx-=ss*30;
             }
         }
-        
+     */
         
         /*
         glEnd();
