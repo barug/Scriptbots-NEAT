@@ -29,7 +29,16 @@ set( SB_SRCS
         src/AssemblyBrain.cpp
         src/Agent.cpp
         src/World.cpp
-        src/vmath.cpp)
+        src/vmath.cpp
+        src/NEAT/gene.cpp
+        src/NEAT/genome.cpp
+        src/NEAT/innovation.cpp
+        src/NEAT/link.cpp
+        src/NEAT/neat.cpp
+        src/NEAT/NeatBrain.cpp
+        src/NEAT/network.cpp
+        src/NEAT/nnode.cpp
+        src/NEAT/trait.cpp)
 
 add_executable(scriptbots  ${SB_SRCS})
 
