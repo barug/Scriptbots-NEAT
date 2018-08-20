@@ -5,9 +5,23 @@
 #include "View.h"
 #include "World.h"
 
+#include <vtk_glew.h>
+
+#include <ExternalVTKWidget.h>
+#include <vtkActor.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCamera.h>
+#include <vtkCubeSource.h>
+#include <vtkExternalOpenGLRenderWindow.h>
+#include <vtkLight.h>
+#include <vtkNew.h>
+#include <vtkPolyDataMapper.h>
+
 class GLView;
 
 extern GLView* GLVIEW;
+
+
 
 void gl_processNormalKeys(unsigned char key, int x, int y);
 void gl_processMouse(int button, int state, int x, int y);
@@ -23,7 +37,7 @@ public:
     GLView(World* w);
     virtual ~GLView();
     
-    virtual void drawAgent(const Agent &a);
+    virtual void drawAgent(const Agent *a);
     virtual void drawFood(int x, int y, float quantity);
     virtual void drawMisc();
     

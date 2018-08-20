@@ -22,8 +22,8 @@ public:
     void initEvent(float size, float r, float g, float b);
     
     void tick();
-    Agent reproduce(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num);
-    Agent crossover(const Agent &other);
+    Agent *reproduce(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num);
+    Agent *crossover(const Agent &other);
     
     Vector2f pos;
 

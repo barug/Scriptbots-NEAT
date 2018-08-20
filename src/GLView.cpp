@@ -1,4 +1,5 @@
 #include "GLView.h"
+#include "VTKView.h"
 
 #include "config.h"
 #ifdef LOCAL_GLUT32
@@ -223,24 +224,25 @@ void GLView::renderScene()
 
     glPopMatrix();
     glutSwapBuffers();
+
 }
 
-void GLView::drawAgent(const Agent& agent)
+void GLView::drawAgent(const Agent *agent)
 {
     float n;
     float r= conf::BOTRADIUS;
     float rp= conf::BOTRADIUS+2;
     //handle selected agent
-    if (agent.selectflag>0) {
+    if (agent->selectflag>0) {
 
         //draw selection
         glBegin(GL_POLYGON);
         glColor3f(1,1,0);
-        drawCircle(agent.pos.x, agent.pos.y, conf::BOTRADIUS+5);
+        drawCircle(agent->pos.x, agent->pos.y, conf::BOTRADIUS+5);
         glEnd();
 
         glPushMatrix();
-        glTranslatef(agent.pos.x-80,agent.pos.y+20,0);
+        glTranslatef(agent->pos.x-80,agent->pos.y+20,0);
         //draw inputs, outputs
   /*      float col;
         float yy=15;
@@ -248,7 +250,7 @@ void GLView::drawAgent(const Agent& agent)
         float ss=16;
         glBegin(GL_QUADS);
         for (int j=0;j<INPUTSIZE;j++) {
-            col= agent.in[j];
+            col= agent->in[j];
             glColor3f(col,col,col);
             glVertex3f(0+ss*j, 0, 0.0f);
             glVertex3f(xx+ss*j, 0, 0.0f);
@@ -257,7 +259,7 @@ void GLView::drawAgent(const Agent& agent)
         }
         yy+=5;
         for (int j=0;j<OUTPUTSIZE;j++) {
-            col= agent.out[j];
+            col= agent->out[j];
             glColor3f(col,col,col);
             glVertex3f(0+ss*j, yy, 0.0f);
             glVertex3f(xx+ss*j, yy, 0.0f);
@@ -272,7 +274,7 @@ void GLView::drawAgent(const Agent& agent)
         ss=8;
         xx=ss;*/
      /*   for (int j=0;j<BRAINSIZE;j++) {
-            col = agent.brain.boxes[j].out;
+            col = agent->brain.boxes[j].out;
             glColor3f(col,col,col);
             
             glVertex3f(offx+0+ss*j, yy, 0.0f);
@@ -295,7 +297,7 @@ void GLView::drawAgent(const Agent& agent)
         xx=ss;
         for (int j=0;j<BRAINSIZE;j++) {
             for(int k=0;k<CONNS;k++){
-                int j2= agent.brain.boxes[j].id[k];
+                int j2= agent->brain.boxes[j].id[k];
                 
                 //project indices j and j2 into pixel space
                 float x1= 0;
@@ -314,7 +316,7 @@ void GLView::drawAgent(const Agent& agent)
                     y2= yy+ss+2*ss*((int) (j2-INPUTSIZE)/30);
                 }
                 
-                float ww= agent.brain.boxes[j].w[k];
+                float ww= agent->brain.boxes[j].w[k];
                 if(ww<0) glColor3f(-ww, 0, 0);
                 else glColor3f(0,0,ww);
                 
@@ -329,25 +331,25 @@ void GLView::drawAgent(const Agent& agent)
     }
 
     //draw giving/receiving
-    if(agent.dfood!=0){
+    if(agent->dfood!=0){
         glBegin(GL_POLYGON);
-        float mag=cap(abs(agent.dfood)/conf::FOODTRANSFER/3);
-        if(agent.dfood>0) glColor3f(0,mag,0); //draw boost as green outline
+        float mag=cap(abs(agent->dfood)/conf::FOODTRANSFER/3);
+        if(agent->dfood>0) glColor3f(0,mag,0); //draw boost as green outline
         else glColor3f(mag,0,0);
         for (int k=0;k<17;k++){
             n = k*(M_PI/8);
-            glVertex3f(agent.pos.x+rp*sin(n),agent.pos.y+rp*cos(n),0);
+            glVertex3f(agent->pos.x+rp*sin(n),agent->pos.y+rp*cos(n),0);
             n = (k+1)*(M_PI/8);
-            glVertex3f(agent.pos.x+rp*sin(n),agent.pos.y+rp*cos(n),0);
+            glVertex3f(agent->pos.x+rp*sin(n),agent->pos.y+rp*cos(n),0);
         }
         glEnd();
     }
 
-    //draw indicator of this agent... used for various events
-     if (agent.indicator>0) {
+    //draw indicator of this agent->.. used for various events
+     if (agent->indicator>0) {
          glBegin(GL_POLYGON);
-         glColor3f(agent.ir,agent.ig,agent.ib);
-         drawCircle(agent.pos.x, agent.pos.y, conf::BOTRADIUS+((int)agent.indicator));
+         glColor3f(agent->ir,agent->ig,agent->ib);
+         drawCircle(agent->pos.x, agent->pos.y, conf::BOTRADIUS+((int)agent->indicator));
          glEnd();
      }
     
@@ -356,41 +358,41 @@ void GLView::drawAgent(const Agent& agent)
     glBegin(GL_LINES);
     glColor3f(0.5,0.5,0.5);
     for(int q=0;q<NUMEYES;q++) {
-        glVertex3f(agent.pos.x,agent.pos.y,0);
-//        float aa= agent.angle+agent.eyedir[q]+agent.eyefov[q];
-        float aa= agent.angle+agent.eyedir[q];
-        glVertex3f(agent.pos.x+(conf::BOTRADIUS*4)*cos(aa),
-                   agent.pos.y+(conf::BOTRADIUS*4)*sin(aa),
+        glVertex3f(agent->pos.x,agent->pos.y,0);
+//        float aa= agent->angle+agent->eyedir[q]+agent->eyefov[q];
+        float aa= agent->angle+agent->eyedir[q];
+        glVertex3f(agent->pos.x+(conf::BOTRADIUS*4)*cos(aa),
+                   agent->pos.y+(conf::BOTRADIUS*4)*sin(aa),
                    0);
-        //aa = agent.angle+agent.eyedir[q]-agent.eyefov[q];
-        //glVertex3f(agent.pos.x,agent.pos.y,0);
-        //glVertex3f(agent.pos.x+(conf::BOTRADIUS*4)*cos(aa),
-        //           agent.pos.y+(conf::BOTRADIUS*4)*sin(aa),
+        //aa = agent->angle+agent->eyedir[q]-agent->eyefov[q];
+        //glVertex3f(agent->pos.x,agent->pos.y,0);
+        //glVertex3f(agent->pos.x+(conf::BOTRADIUS*4)*cos(aa),
+        //           agent->pos.y+(conf::BOTRADIUS*4)*sin(aa),
         //           0);
     }
     glEnd();
     
     glBegin(GL_POLYGON); //body
-    glColor3f(agent.red,agent.gre,agent.blu);
-    drawCircle(agent.pos.x, agent.pos.y, conf::BOTRADIUS);
+    glColor3f(agent->red,agent->gre,agent->blu);
+    drawCircle(agent->pos.x, agent->pos.y, conf::BOTRADIUS);
     glEnd();
 
     glBegin(GL_LINES);
     //outline
-    if (agent.boost) glColor3f(0.8,0,0); //draw boost as green outline
+    if (agent->boost) glColor3f(0.8,0,0); //draw boost as green outline
     else glColor3f(0,0,0);
 
     for (int k=0;k<17;k++)
     {
         n = k*(M_PI/8);
-        glVertex3f(agent.pos.x+r*sin(n),agent.pos.y+r*cos(n),0);
+        glVertex3f(agent->pos.x+r*sin(n),agent->pos.y+r*cos(n),0);
         n = (k+1)*(M_PI/8);
-        glVertex3f(agent.pos.x+r*sin(n),agent.pos.y+r*cos(n),0);
+        glVertex3f(agent->pos.x+r*sin(n),agent->pos.y+r*cos(n),0);
     }
     //and spike
     glColor3f(0.5,0,0);
-    glVertex3f(agent.pos.x,agent.pos.y,0);
-    glVertex3f(agent.pos.x+(3*r*agent.spikeLength)*cos(agent.angle),agent.pos.y+(3*r*agent.spikeLength)*sin(agent.angle),0);
+    glVertex3f(agent->pos.x,agent->pos.y,0);
+    glVertex3f(agent->pos.x+(3*r*agent->spikeLength)*cos(agent->angle),agent->pos.y+(3*r*agent->spikeLength)*sin(agent->angle),0);
     glEnd();
 
     //and health
@@ -399,50 +401,50 @@ void GLView::drawAgent(const Agent& agent)
     glBegin(GL_QUADS);
     //black background
     glColor3f(0,0,0);
-    glVertex3f(agent.pos.x+xo,agent.pos.y+yo,0);
-    glVertex3f(agent.pos.x+xo+5,agent.pos.y+yo,0);
-    glVertex3f(agent.pos.x+xo+5,agent.pos.y+yo+40,0);
-    glVertex3f(agent.pos.x+xo,agent.pos.y+yo+40,0);
+    glVertex3f(agent->pos.x+xo,agent->pos.y+yo,0);
+    glVertex3f(agent->pos.x+xo+5,agent->pos.y+yo,0);
+    glVertex3f(agent->pos.x+xo+5,agent->pos.y+yo+40,0);
+    glVertex3f(agent->pos.x+xo,agent->pos.y+yo+40,0);
 
     //health
     glColor3f(0,0.8,0);
-    glVertex3f(agent.pos.x+xo,agent.pos.y+yo+20*(2-agent.health),0);
-    glVertex3f(agent.pos.x+xo+5,agent.pos.y+yo+20*(2-agent.health),0);
-    glVertex3f(agent.pos.x+xo+5,agent.pos.y+yo+40,0);
-    glVertex3f(agent.pos.x+xo,agent.pos.y+yo+40,0);
+    glVertex3f(agent->pos.x+xo,agent->pos.y+yo+20*(2-agent->health),0);
+    glVertex3f(agent->pos.x+xo+5,agent->pos.y+yo+20*(2-agent->health),0);
+    glVertex3f(agent->pos.x+xo+5,agent->pos.y+yo+40,0);
+    glVertex3f(agent->pos.x+xo,agent->pos.y+yo+40,0);
 
     //if this is a hybrid, we want to put a marker down
-    if (agent.hybrid) {
+    if (agent->hybrid) {
         glColor3f(0,0,0.8);
-        glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo,0);
-        glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo,0);
-        glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+10,0);
-        glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+10,0);
+        glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo,0);
+        glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo,0);
+        glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+10,0);
+        glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+10,0);
     }
 
-    glColor3f(1-agent.herbivore,agent.herbivore,0);
-    glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+12,0);
-    glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+12,0);
-    glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+22,0);
-    glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+22,0);
+    glColor3f(1-agent->herbivore,agent->herbivore,0);
+    glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+12,0);
+    glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+12,0);
+    glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+22,0);
+    glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+22,0);
 
     //how much sound is this bot making?
-    glColor3f(agent.soundmul,agent.soundmul,agent.soundmul);
-    glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+24,0);
-    glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+24,0);
-    glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+34,0);
-    glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+34,0);
+    glColor3f(agent->soundmul,agent->soundmul,agent->soundmul);
+    glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+24,0);
+    glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+24,0);
+    glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+34,0);
+    glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+34,0);
 
     //draw giving/receiving
-    if (agent.dfood!=0) {
+    if (agent->dfood!=0) {
 
-        float mag=cap(abs(agent.dfood)/conf::FOODTRANSFER/3);
-        if (agent.dfood>0) glColor3f(0,mag,0); //draw boost as green outline
+        float mag=cap(abs(agent->dfood)/conf::FOODTRANSFER/3);
+        if (agent->dfood>0) glColor3f(0,mag,0); //draw boost as green outline
         else glColor3f(mag,0,0);
-        glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+36,0);
-        glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+36,0);
-        glVertex3f(agent.pos.x+xo+12,agent.pos.y+yo+46,0);
-        glVertex3f(agent.pos.x+xo+6,agent.pos.y+yo+46,0);
+        glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+36,0);
+        glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+36,0);
+        glVertex3f(agent->pos.x+xo+12,agent->pos.y+yo+46,0);
+        glVertex3f(agent->pos.x+xo+6,agent->pos.y+yo+46,0);
     }
 
 
@@ -450,21 +452,21 @@ void GLView::drawAgent(const Agent& agent)
 
     //print stats
     //generation count
-    sprintf(buf2, "%i", agent.gencount);
-    RenderString(agent.pos.x-conf::BOTRADIUS*1.5, agent.pos.y+conf::BOTRADIUS*1.8, GLUT_BITMAP_TIMES_ROMAN_24, buf2, 0.0f, 0.0f, 0.0f);
+    sprintf(buf2, "%i", agent->gencount);
+    RenderString(agent->pos.x-conf::BOTRADIUS*1.5, agent->pos.y+conf::BOTRADIUS*1.8, GLUT_BITMAP_TIMES_ROMAN_24, buf2, 0.0f, 0.0f, 0.0f);
     //age
-    sprintf(buf2, "%i", agent.age);
-    float x = agent.age/1000.0;
+    sprintf(buf2, "%i", agent->age);
+    float x = agent->age/1000.0;
     if(x>1)x=1;
-    RenderString(agent.pos.x-conf::BOTRADIUS*1.5, agent.pos.y+conf::BOTRADIUS*1.8+12, GLUT_BITMAP_TIMES_ROMAN_24, buf2, x, 0.0f, 0.0f);
+    RenderString(agent->pos.x-conf::BOTRADIUS*1.5, agent->pos.y+conf::BOTRADIUS*1.8+12, GLUT_BITMAP_TIMES_ROMAN_24, buf2, x, 0.0f, 0.0f);
 
     //health
-    sprintf(buf2, "%.2f", agent.health);
-    RenderString(agent.pos.x-conf::BOTRADIUS*1.5, agent.pos.y+conf::BOTRADIUS*1.8+24, GLUT_BITMAP_TIMES_ROMAN_24, buf2, 0.0f, 0.0f, 0.0f);
+    sprintf(buf2, "%.2f", agent->health);
+    RenderString(agent->pos.x-conf::BOTRADIUS*1.5, agent->pos.y+conf::BOTRADIUS*1.8+24, GLUT_BITMAP_TIMES_ROMAN_24, buf2, 0.0f, 0.0f, 0.0f);
 
     //repcounter
-    sprintf(buf2, "%.2f", agent.repcounter);
-    RenderString(agent.pos.x-conf::BOTRADIUS*1.5, agent.pos.y+conf::BOTRADIUS*1.8+36, GLUT_BITMAP_TIMES_ROMAN_24, buf2, 0.0f, 0.0f, 0.0f);
+    sprintf(buf2, "%.2f", agent->repcounter);
+    RenderString(agent->pos.x-conf::BOTRADIUS*1.5, agent->pos.y+conf::BOTRADIUS*1.8+36, GLUT_BITMAP_TIMES_ROMAN_24, buf2, 0.0f, 0.0f, 0.0f);
 }
 
 void GLView::drawMisc()

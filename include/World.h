@@ -58,7 +58,7 @@ private:
     int current_epoch;
     int idcounter;
     
-    std::vector<Agent> agents;
+    std::vector<Agent*> agents;
 
     // ******* Member variables used during reproduction *******
     std::vector<NEAT::Innovation*> innovations;  // For holding the genetic innovations of the newest generation

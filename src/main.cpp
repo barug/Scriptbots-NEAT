@@ -1,4 +1,5 @@
 #include "GLView.h"
+#include "VTKView.h"
 #include "World.h"
 
 #include "config.h"
@@ -9,9 +10,11 @@
 #endif
 
 #include <stdio.h>
-
+#include <vtkNew.h>
 
 GLView* GLVIEW = new GLView(0);
+VTKView* VTKVIEW = new VTKView();
+
 int main(int argc, char **argv) {
     srand(time(0));
     if (conf::WIDTH%conf::CZ!=0 || conf::HEIGHT%conf::CZ!=0) printf("CAREFUL! The cell size variable conf::CZ should divide evenly into  both conf::WIDTH and conf::HEIGHT! It doesn't right now!");
@@ -38,6 +41,7 @@ int main(int argc, char **argv) {
     glutMouseFunc(gl_processMouse);
     glutMotionFunc(gl_processMouseActiveMotion);
 
+    VTKVIEW->init();
     glutMainLoop();
     return 0;
 }
