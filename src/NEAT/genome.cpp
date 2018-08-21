@@ -915,7 +915,7 @@ void Genome::print_to_filename(char *filename) {
 }
 
 int Genome::get_last_node_id() {
-	return ((*(nodes.end() - 1))->node_id)+1;
+	return ((*(nodes.end() - 1))->node_id);
 }
 
 double Genome::get_last_gene_innovnum() {
@@ -1341,7 +1341,8 @@ void Genome::mutate_gene_reenable() {
 
 }
 
-bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,double &curinnov) {
+bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,double &curinnov) {
+    int curnode_id = this->get_last_node_id();
 	std::vector<Gene*>::iterator thegene;  //random gene containing the original link
 	int genenum;  //The random gene number
 	NNode *in_node; //Here are the nodes connected by the gene
@@ -1463,7 +1464,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,do
 
 			//Create the new NNode
 			//By convention, it will point to the first trait
-			newnode=new NNode(NEURON,curnode_id++,HIDDEN);
+			newnode=new NNode(NEURON,++curnode_id,HIDDEN);
 			newnode->nodetrait=(*(traits.begin()));
 
 			//Create the new Genes
@@ -1504,7 +1505,7 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,do
 			traitptr=thelink->linktrait;
 
 			//Create the new NNode
-			newnode=new NNode(NEURON,(*theinnov)->newnode_id,HIDDEN);      
+			newnode=new NNode(NEURON,++curnode_id,HIDDEN);
 			//By convention, it will point to the first trait
 			//Note: In future may want to change this
 			newnode->nodetrait=(*(traits.begin()));

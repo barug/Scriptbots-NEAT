@@ -54,13 +54,15 @@ void NEATBrain::mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &inno
 {
     if (randf(0,1)<MR) {
         std::cout << "adding node" << endl;
-        _gen->mutate_add_node(innovations, cur_node_id, cur_innov_num);
+        _gen->mutate_add_node(innovations, cur_innov_num);
     }
 
+/*
     else if (randf(0,1)<MR) {
         std::cout << "mutating random trait" << endl;
         _gen->mutate_random_trait();
     }
+*/
 
     else if (randf(0, 1) < MR) {
         //Only do other mutations when not doing sturctural mutations

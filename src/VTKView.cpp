@@ -25,6 +25,11 @@
 #include <vtkRenderWindowInteractor.h>
 
 #include <vtkFast2DLayoutStrategy.h>
+#include <vtkSimple2DLayoutStrategy.h>
+#include <vtkClustering2DLayoutStrategy.h>
+#include <vtkAttributeClustering2DLayoutStrategy.h>
+#include <vtkForceDirectedLayoutStrategy.h>
+#include <vtkPassThroughLayoutStrategy.h>
 #include <vtkGraphLayout.h>
 #include <vtkGraphToGlyphs.h>
 #include <vtkArcParallelEdgeStrategy.h>
@@ -50,7 +55,7 @@ VTKView::VTKView()
 {
     //setup a strategy for laying out the graph
 // NOTE: You can set additional options for each strategy, as desired
-    vtkNew<vtkFast2DLayoutStrategy> strategy;
+    vtkNew<vtkSimple2DLayoutStrategy> strategy;
 //strategy = vtkSimple2DLayoutStrategy()
 //strategy = vtkCosmicTreeLayoutStrategy()
 //strategy = vtkForceDirectedLayoutStrategy()
@@ -121,11 +126,13 @@ void VTKView::displayAgentInfo(const Agent *agent) {
 
     _graph->Initialize();
     _graph->SetNumberOfVertices(nodes.size());
-    cout << "total :" << _graph->GetNumberOfVertices() << endl;
-    for (auto *node: nodes) {
+    cout << "nodes size : " << nodes.size() << endl;
+    cout << "number of vertices : " << _graph->GetNumberOfVertices() << endl;
+    for (NEAT::NNode* node: nodes) {
         cout << "node_id : " << node->node_id - 1 << endl;
+        cout << "----pointer : " << node << endl;
         for (auto link: node->incoming) {
-            cout << "link from : " << link->in_node->node_id - 1 << " to : " << node->node_id - 1 << endl;
+            //cout << "link from : " << link->in_node->node_id - 1 << " to : " << node->node_id - 1 << endl;
             _graph->AddEdge(link->in_node->node_id - 1, node->node_id - 1);
         }
     }

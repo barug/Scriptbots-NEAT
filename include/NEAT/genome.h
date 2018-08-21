@@ -136,7 +136,7 @@ namespace NEAT {
 		//   Generally, if they fail, they can be called again if desired. 
 
 		// Mutate genome by adding a node respresentation 
-		bool mutate_add_node(std::vector<Innovation*> &innovs,int &curnode_id,double &curinnov);
+		bool mutate_add_node(std::vector<Innovation*> &innovs,double &curinnov);
 
 		// Mutate the genome by adding a new link between 2 random NNodes 
 		bool mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,int tries); 
