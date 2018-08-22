@@ -126,20 +126,12 @@ void VTKView::displayAgentInfo(const Agent *agent) {
 
     _graph->Initialize();
     _graph->SetNumberOfVertices(nodes.size());
-    cout << "nodes size : " << nodes.size() << endl;
-    cout << "number of vertices : " << _graph->GetNumberOfVertices() << endl;
     for (NEAT::NNode* node: nodes) {
-        cout << "node_id : " << node->node_id - 1 << endl;
-        cout << "----pointer : " << node << endl;
         for (auto link: node->incoming) {
-            //cout << "link from : " << link->in_node->node_id - 1 << " to : " << node->node_id - 1 << endl;
             _graph->AddEdge(link->in_node->node_id - 1, node->node_id - 1);
         }
     }
-    //layout->SetInputData(_graph.GetPointer());
+
     layout->Update();
     _renWin->Render();
-    //_renWin->Start();
-
-    //glutPostRedisplay();
 }

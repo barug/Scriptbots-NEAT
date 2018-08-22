@@ -19,9 +19,10 @@ public:
 
     NEATBrain();
     NEATBrain(const NEATBrain &other);
-    virtual NEATBrain& operator=(const NEATBrain& other);
+    NEATBrain& operator=(const NEATBrain& other);
 
     ~NEATBrain();
+    void initiateBasicBrain();
     void tick(std::vector<float>& in, std::vector<float>& out);
     void mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num);
     NEATBrain crossover( const NEATBrain &other );

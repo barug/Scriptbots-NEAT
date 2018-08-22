@@ -16,7 +16,9 @@ class Agent
 public:
     Agent();
     
-    
+
+    void makeBasicBrain();
+
     void printSelf();
      //for drawing purposes
     void initEvent(float size, float r, float g, float b);

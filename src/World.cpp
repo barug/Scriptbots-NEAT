@@ -483,6 +483,7 @@ void World::addRandomBots(int num)
 {
     for (int i=0;i<num;i++) {
         Agent *a = new Agent();
+        a->makeBasicBrain();
         a->id = idcounter;
         idcounter++;
         agents.push_back(a);

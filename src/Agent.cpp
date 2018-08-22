@@ -64,6 +64,10 @@ Agent::Agent()
     }
 }
 
+void Agent::makeBasicBrain() {
+    brain.initiateBasicBrain();
+}
+
 void Agent::printSelf()
 {
     printf("Agent age=%i\n", age);
@@ -86,9 +90,6 @@ void Agent::tick()
 }
 Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num)
 {
-    cout << "reproduction" << endl;
-    cout << "MR " << MR << endl;
-    cout << "MR2 " << MR2 << endl;
     bool BDEBUG = false;
     if(BDEBUG) printf("New birth---------------\n");
     Agent *a2 = new Agent();
@@ -145,7 +146,7 @@ Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovati
 //    a2->temperature_preference= this->temperature_preference;
     
     //mutate brain here
-    a2->brain= this->brain;
+    a2->brain = this->brain;
     a2->brain.mutate(MR,MR2, innovations, cur_node_id, cur_innov_num);
     
     return a2;
@@ -157,7 +158,7 @@ Agent *Agent::crossover(const Agent& other)
     //this could be made faster by returning a pointer
     //instead of returning by value
     Agent *anew = new Agent();
-    anew->hybrid=true; //set this non-default flag
+   /* anew->hybrid=true; //set this non-default flag
     anew->gencount= this->gencount;
     if (other.gencount<anew->gencount) anew->gencount= other.gencount;
 
@@ -178,7 +179,7 @@ Agent *Agent::crossover(const Agent& other)
     anew->eyefov= randf(0,1)<0.5 ? this->eyefov : other.eyefov;
     anew->eyedir= randf(0,1)<0.5 ? this->eyedir : other.eyedir;
     
-    anew->brain= this->brain.crossover(other.brain);
-    
+    anew->brain= this->brain->crossover(other->brain);
+   */
     return anew;
 }
