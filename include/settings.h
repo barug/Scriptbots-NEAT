@@ -21,14 +21,13 @@ namespace conf {
     const float BOTSPEED= 0.3;
     const float SPIKESPEED= 0.005; //how quickly can attack spike go up?
     const float SPIKEMULT= 1; //essentially the strength of every spike impact
-    const int BABIES=1; //number of babies per agent when they reproduce
+    const int BABIES=2; //number of babies per agent when they reproduce
     const float BOOSTSIZEMULT=2; //how much boost do agents get? when boost neuron is on
     const float REPRATEH=7; //reproduction rate for herbivors
     const float REPRATEC=7; //reproduction rate for carnivors
-    const float MATING_RADIUS=50;
-    const double MATING_COMPATIBILITY_TRESHOLD=0.7;
-    const int MATING_BABIES=2;
-    const double COMPATIBILITY_TRESHOLD=3.0;
+    const float MATING_RADIUS=100;
+    const double MATING_COMPATIBILITY_TRESHOLD=3.0;
+    const int MATING_BABIES=3;
 
     const float DIST= 150;		//how far can the eyes see on each bot?
     const float METAMUTRATE1= 0.002; //what is the change in MUTRATE1 and 2 on reproduction? lol

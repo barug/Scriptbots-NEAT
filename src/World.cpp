@@ -163,14 +163,16 @@ void World::update()
     //handle sexuate reproduction
     if (modcounter%15==0) {
         for (int i = 0; i < agents.size(); i++) {
-            if (agents[i]->repcounter < 0 && agents[i]->health > 0.5 && randf(0, 1) < 0.1) {
+            if (agents[i]->repcounter < 0 && agents[i]->health > 0.5) {
                 for (int j = 0; j < agents.size(); j++) {
-                    if (agents[i]->repcounter < 0 && agents[i]->health > 0.5) {
+                    if (i != j && agents[i]->repcounter < 0 && agents[i]->health > 0.5) {
                         float d = (agents[i]->pos - agents[j]->pos).length();
-                        float c = agents[i]->compatibility(agents[j]);
+                        double c = agents[i]->compatibility(agents[j]);
                         if (d < conf::MATING_RADIUS){
-                            if(c < conf::COMPATIBILITY_TRESHOLD) {
-                                cout << "mating!! compatibility : " << c << endl;
+                            //float c = agents[i]->compatibility(agents[j]);
+                            if(c < conf::MATING_COMPATIBILITY_TRESHOLD) {
+                                cout << "mating!! compatibility : " << c << " distance : " << d << endl;
+                                cout << conf::MATING_COMPATIBILITY_TRESHOLD << endl;
 
                                 mate(agents[i], agents[j]);
                                 agents[i]->repcounter =

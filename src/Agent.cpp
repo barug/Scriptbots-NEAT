@@ -102,7 +102,35 @@ void Agent::tick()
 }
 
 double Agent::compatibility(Agent *other) {
-    brain->compatibility(other->brain);
+    double compatibility = 0;
+    double brainCompat = brain->compatibility(other->brain);
+    double bodyCompat = 0;
+
+    //cout << "---------------------" << endl;
+    bodyCompat += abs(this->herbivore - other->herbivore) * 4;
+    //bodyCompat = this->temperature_preference / other->temperature_preference;
+    //cout << "herbivoreCompat : " << bodyCompat << endl;
+    bodyCompat += abs(this->smellmod - other->smellmod) / 2;
+    //cout << "smellCompat : " << abs(this->smellmod - other->smellmod) / 2 << endl;
+    bodyCompat += abs(this->hearmod- other->hearmod) / 2;
+    //cout << "hearCompat : " << abs(this->hearmod- other->hearmod) / 2 << endl;
+    bodyCompat += abs(this->eyesensmod - other->eyesensmod) / 2;
+    //cout << "eyesensCompat : " << abs(this->eyesensmod - other->eyesensmod) / 2 << endl;
+    bodyCompat += abs(this->bloodmod - other->bloodmod) / 5;
+    //cout << "bloodCompat : " << abs(this->bloodmod - other->bloodmod) / 2 << endl;
+
+    double eyesCompat = 0;
+    for(int i=0;i<NUMEYES;i++) {
+        eyesCompat += abs(this->eyefov[i] - other->eyefov[i]) / 2;
+        eyesCompat += abs(this->eyedir[i] - other->eyedir[i]) / (2 * M_PI);
+    }
+    eyesCompat /= 5;
+    //cout << "eyesCompat : " << eyesCompat << endl;
+    bodyCompat += eyesCompat;
+    //cout << "bodyCompat : " << bodyCompat << endl;
+    //cout << "brainCompat : " << brainCompat << endl;
+    compatibility = brainCompat + bodyCompat;
+    return compatibility;
 }
 
 Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovations, double &cur_innov_num)
