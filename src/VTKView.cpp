@@ -122,7 +122,7 @@ void VTKView::draw() {
 }
 
 void VTKView::displayAgentInfo(const Agent *agent) {
-    std::vector<NEAT::NNode*> &nodes = agent->brain._net->all_nodes;
+    std::vector<NEAT::NNode*> &nodes = agent->brain->_net->all_nodes;
 
     _graph->Initialize();
     _graph->SetNumberOfVertices(nodes.size());

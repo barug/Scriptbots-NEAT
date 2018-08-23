@@ -152,7 +152,7 @@ namespace NEAT {
 		//   the other, the baby will inherit the innovation 
 		//   Interspecies mating leads to all genes being inherited.
 		//   Otherwise, excess genes come from most fit parent.
-		Genome *mate_multipoint(Genome *g,int genomeid,double fitness1, double fitness2, bool interspec_flag);
+		Genome *mate_multipoint(const Genome *g,int genomeid,double fitness1, double fitness2, bool interspec_flag);
 
 		//This method mates like multipoint but instead of selecting one
 		//   or the other when the innovation numbers match, it averages their

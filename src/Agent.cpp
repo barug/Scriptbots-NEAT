@@ -48,8 +48,11 @@ Agent::Agent()
     eyesensmod= randf(1, 3);
     bloodmod= randf(1, 3);
     
-    MUTRATE1= randf(0.001, 0.005);
+    //MUTRATE1= randf(0.001, 0.005);
+    MUTRATE1= randf(0.01, 0.1);
     MUTRATE2= randf(0.03, 0.07);
+    //cout << "mutrate1:" << MUTRATE1 << endl;
+    //cout << "mutrate2:" << MUTRATE2 << endl;
 
     spiked= false;
     
@@ -64,8 +67,17 @@ Agent::Agent()
     }
 }
 
+Agent::~Agent() {
+    if (brain)
+        delete brain;
+}
+
+
+
+
 void Agent::makeBasicBrain() {
-    brain.initiateBasicBrain();
+    brain = new NEATBrain();
+    brain->initiateBasicBrain();
 }
 
 void Agent::printSelf()
@@ -86,9 +98,14 @@ void Agent::initEvent(float size, float r, float g, float b)
 
 void Agent::tick()
 {
-    brain.tick(in, out);
+    brain->tick(in, out);
 }
-Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num)
+
+double Agent::compatibility(Agent *other) {
+    brain->compatibility(other->brain);
+}
+
+Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovations, double &cur_innov_num)
 {
     bool BDEBUG = false;
     if(BDEBUG) printf("New birth---------------\n");
@@ -146,40 +163,55 @@ Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovati
 //    a2->temperature_preference= this->temperature_preference;
     
     //mutate brain here
-    a2->brain = this->brain;
-    a2->brain.mutate(MR,MR2, innovations, cur_node_id, cur_innov_num);
-    
-    return a2;
+    a2->brain = this->brain->duplicate();
+    a2->brain->mutate(MR,MR2, innovations, cur_innov_num);
+    a2->brain->generateNetwork();
 
+    return a2;
 }
 
-Agent *Agent::crossover(const Agent& other)
+
+
+Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, double &cur_innov_num)
 {
     //this could be made faster by returning a pointer
     //instead of returning by value
     Agent *anew = new Agent();
-   /* anew->hybrid=true; //set this non-default flag
+
+    //spawn the baby somewhere closeby behind agent
+    //we want to spawn behind so that agents dont accidentally eat their young right away
+    Vector2f fb(conf::BOTRADIUS,0);
+    fb.rotate(-anew->angle);
+    anew->pos= this->pos + fb + Vector2f(randf(-conf::BOTRADIUS*2,conf::BOTRADIUS*2), randf(-conf::BOTRADIUS*2,conf::BOTRADIUS*2));
+    if (anew->pos.x<0) anew->pos.x= conf::WIDTH+anew->pos.x;
+    if (anew->pos.x>=conf::WIDTH) anew->pos.x= anew->pos.x-conf::WIDTH;
+    if (anew->pos.y<0) anew->pos.y= conf::HEIGHT+anew->pos.y;
+    if (anew->pos.y>=conf::HEIGHT) anew->pos.y= anew->pos.y-conf::HEIGHT;
+
+    anew->hybrid=true; //set this non-default flag
     anew->gencount= this->gencount;
-    if (other.gencount<anew->gencount) anew->gencount= other.gencount;
+    if (other->gencount<anew->gencount) anew->gencount= other->gencount;
 
     //agent heredity attributes
-    anew->clockf1= randf(0,1)<0.5 ? this->clockf1 : other.clockf1;
-    anew->clockf2= randf(0,1)<0.5 ? this->clockf2 : other.clockf2;
-    anew->herbivore= randf(0,1)<0.5 ? this->herbivore : other.herbivore;
-    anew->MUTRATE1= randf(0,1)<0.5 ? this->MUTRATE1 : other.MUTRATE1;
-    anew->MUTRATE2= randf(0,1)<0.5 ? this->MUTRATE2 : other.MUTRATE2;
-    anew->temperature_preference = randf(0,1)<0.5 ? this->temperature_preference : other.temperature_preference;
+    anew->clockf1= randf(0,1)<0.5 ? this->clockf1 : other->clockf1;
+    anew->clockf2= randf(0,1)<0.5 ? this->clockf2 : other->clockf2;
+    anew->herbivore= randf(0,1)<0.5 ? this->herbivore : other->herbivore;
+    anew->MUTRATE1= randf(0,1)<0.5 ? this->MUTRATE1 : other->MUTRATE1;
+    anew->MUTRATE2= randf(0,1)<0.5 ? this->MUTRATE2 : other->MUTRATE2;
+    anew->temperature_preference = randf(0,1)<0.5 ? this->temperature_preference : other->temperature_preference;
     
-    anew->smellmod= randf(0,1)<0.5 ? this->smellmod : other.smellmod;
-    anew->soundmod= randf(0,1)<0.5 ? this->soundmod : other.soundmod;
-    anew->hearmod= randf(0,1)<0.5 ? this->hearmod : other.hearmod;
-    anew->eyesensmod= randf(0,1)<0.5 ? this->eyesensmod : other.eyesensmod;
-    anew->bloodmod= randf(0,1)<0.5 ? this->bloodmod : other.bloodmod;
+    anew->smellmod= randf(0,1)<0.5 ? this->smellmod : other->smellmod;
+    anew->soundmod= randf(0,1)<0.5 ? this->soundmod : other->soundmod;
+    anew->hearmod= randf(0,1)<0.5 ? this->hearmod : other->hearmod;
+    anew->eyesensmod= randf(0,1)<0.5 ? this->eyesensmod : other->eyesensmod;
+    anew->bloodmod= randf(0,1)<0.5 ? this->bloodmod : other->bloodmod;
     
-    anew->eyefov= randf(0,1)<0.5 ? this->eyefov : other.eyefov;
-    anew->eyedir= randf(0,1)<0.5 ? this->eyedir : other.eyedir;
+    anew->eyefov= randf(0,1)<0.5 ? this->eyefov : other->eyefov;
+    anew->eyedir= randf(0,1)<0.5 ? this->eyedir : other->eyedir;
     
-    anew->brain= this->brain->crossover(other->brain);
-   */
+    anew->brain = this->brain->crossover(other->brain);
+    anew->brain->mutate(anew->MUTRATE1, anew->MUTRATE2, innovations, cur_innov_num);
+    anew->brain->generateNetwork();
+
     return anew;
 }

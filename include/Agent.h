@@ -15,7 +15,7 @@ class Agent
 
 public:
     Agent();
-    
+    ~Agent();
 
     void makeBasicBrain();
 
@@ -24,9 +24,11 @@ public:
     void initEvent(float size, float r, float g, float b);
     
     void tick();
-    Agent *reproduce(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num);
-    Agent *crossover(const Agent &other);
-    
+    double compatibility(Agent *other);
+    Agent *reproduce(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
+    Agent *mate(const Agent* other, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
+
+
     Vector2f pos;
 
     float health; //in [0,2]. I cant remember why.
@@ -82,7 +84,7 @@ public:
 //    DWRAONBrain brain; //THE BRAIN!!!!
 //    AssemblyBrain brain;
 //    MLPBrain brain;
-    NEATBrain brain;
+    NEATBrain *brain;
 
     
     //will store the mutations that this agent has from its parent

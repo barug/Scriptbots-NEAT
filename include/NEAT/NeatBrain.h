@@ -23,9 +23,12 @@ public:
 
     ~NEATBrain();
     void initiateBasicBrain();
+    NEATBrain *duplicate();
     void tick(std::vector<float>& in, std::vector<float>& out);
-    void mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num);
-    NEATBrain crossover( const NEATBrain &other );
+    void mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
+    void generateNetwork();
+    double compatibility(NEATBrain *other);
+    NEATBrain *crossover( const NEATBrain *other );
 };
 
 

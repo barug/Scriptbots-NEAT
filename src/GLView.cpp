@@ -9,6 +9,20 @@
 #endif
 
 #include <stdio.h>
+#include <vtk_glew.h>
+
+
+
+#include <vtkCylinderSource.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkActor.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkProperty.h>
+#include <vtkCamera.h>
+#include <vtkSmartPointer.h>
+
 
 void gl_processNormalKeys(unsigned char key, int x, int y)
 {
@@ -80,6 +94,7 @@ GLView::~GLView()
 }
 void GLView::changeSize(int w, int h)
 {
+
     // Reset the coordinate system before modifying
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -146,9 +161,9 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         skipdraw--;
     } else if (key=='f') {
         drawfood=!drawfood;
-    } else if (key=='a') {
+    } /*else if (key=='a') {
         for (int i=0;i<10;i++){world->addNewByCrossover();}
-    } else if (key=='q') {
+    }*/ else if (key=='q') {
         for (int i=0;i<10;i++){world->addCarnivore();}
     } else if (key=='h') {
         for (int i=0;i<10;i++){world->addHerbivore();}

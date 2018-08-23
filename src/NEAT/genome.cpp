@@ -948,13 +948,13 @@ Genome *Genome::duplicate(int new_id) {
 	//verify();
 
 	//Duplicate the traits
-	for(curtrait=traits.begin();curtrait!=traits.end();++curtrait) {
+	for(curtrait=traits.begin();curtrait!=traits.end();curtrait++) {
 		newtrait=new Trait(*curtrait);
 		traits_dup.push_back(newtrait);
 	}
 
 	//Duplicate NNodes
-	for(curnode=nodes.begin();curnode!=nodes.end();++curnode) {
+	for(curnode=nodes.begin();curnode!=nodes.end();curnode++) {
 		//First, find the trait that this node points to
 		if (((*curnode)->nodetrait)==0) assoc_trait=0;
 		else {
@@ -972,7 +972,7 @@ Genome *Genome::duplicate(int new_id) {
 	}
 
 	//Duplicate Genes
-	for(curgene=genes.begin();curgene!=genes.end();++curgene) {
+	for(curgene=genes.begin();curgene!=genes.end();curgene++) {
 		//First find the nodes connected by the gene's link
 
 		inode=(((*curgene)->lnk)->in_node)->dup;
@@ -1994,7 +1994,7 @@ void Genome::node_insert(std::vector<NNode*> &nlist,NNode *n) {
 
 }
 
-Genome *Genome::mate_multipoint(Genome *g,int genomeid,double fitness1,double fitness2, bool interspec_flag) {
+Genome *Genome::mate_multipoint(const Genome *g,int genomeid,double fitness1,double fitness2, bool interspec_flag) {
 	//The baby Genome will contain these new Traits, NNodes, and Genes
 	std::vector<Trait*> newtraits; 
 	std::vector<NNode*> newnodes;   
@@ -2005,12 +2005,12 @@ Genome *Genome::mate_multipoint(Genome *g,int genomeid,double fitness1,double fi
 
 	//iterators for moving through the two parents' traits
 	std::vector<Trait*>::iterator p1trait;
-	std::vector<Trait*>::iterator p2trait;
+	std::vector<Trait*>::const_iterator p2trait;
 	Trait *newtrait;
 
 	//iterators for moving through the two parents' genes
 	std::vector<Gene*>::iterator p1gene;
-	std::vector<Gene*>::iterator p2gene;
+	std::vector<Gene*>::const_iterator p2gene;
 	double p1innov;  //Innovation numbers for genes inside parents' Genomes
 	double p2innov;
 	Gene *chosengene;  //Gene chosen for baby to inherit
@@ -2019,7 +2019,7 @@ Genome *Genome::mate_multipoint(Genome *g,int genomeid,double fitness1,double fi
 	NNode *onode;
 	NNode *new_inode;
 	NNode *new_onode;
-	std::vector<NNode*>::iterator curnode;  //For checking if NNodes exist already 
+	std::vector<NNode*>::const_iterator curnode;  //For checking if NNodes exist already
 	int nodetraitnum;  //Trait number for a NNode
 
 	bool disable;  //Set to true if we want to disabled a chosen gene

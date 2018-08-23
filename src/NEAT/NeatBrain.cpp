@@ -13,7 +13,10 @@ using namespace NEAT;
 using namespace std;
 
 NEATBrain::NEATBrain()
-{}
+{
+    _gen = nullptr;
+    _net = nullptr;
+}
 
 NEATBrain::NEATBrain(const NEATBrain &other)
 {
@@ -43,6 +46,12 @@ void NEATBrain::initiateBasicBrain() {
     _net = _gen->genesis(0);
 }
 
+NEATBrain *NEATBrain::duplicate() {
+    NEATBrain *newBrain = new NEATBrain();
+    newBrain->_gen = _gen->duplicate(0);
+    return newBrain;
+}
+
 void NEATBrain::tick(std::vector<float>& in, std::vector<float>& out)
 {
     _net->load_sensors(in);
@@ -50,7 +59,7 @@ void NEATBrain::tick(std::vector<float>& in, std::vector<float>& out)
     _net->copy_outputs(out);
 }
 
-void NEATBrain::mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, int &cur_node_id, double &cur_innov_num)
+void NEATBrain::mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num)
 {
     if (randf(0,1)<MR) {
         _gen->mutate_add_node(innovations, cur_innov_num);
@@ -83,10 +92,19 @@ void NEATBrain::mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &inno
 
     if (_net)
         delete _net;
+}
+
+void NEATBrain::generateNetwork() {
     _net = _gen->genesis(0);
 }
 
-NEATBrain NEATBrain::crossover( const NEATBrain &other )
-{
+double NEATBrain::compatibility(NEATBrain *other) {
+    return _gen->compatibility(other->_gen);
+}
 
+NEATBrain *NEATBrain::crossover( const NEATBrain *other )
+{
+    NEATBrain *newBrain = new NEATBrain();
+    newBrain->_gen = other->_gen->mate_multipoint(other->_gen, randf(0, 1), 0, randf(0, 1), 0);
+    return newBrain;
 }

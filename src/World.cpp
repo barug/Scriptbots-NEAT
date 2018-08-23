@@ -153,20 +153,58 @@ void World::update()
     vector<Agent*>::iterator iter= agents.begin();
     while (iter != agents.end()) {
         if ((*iter)->health <=0) {
+            delete *iter;
             iter= agents.erase(iter);
         } else {
             ++iter;
         }
     }
 
-    //handle reproduction
-    for (int i=0;i<agents.size();i++) {
-        if (agents[i]->repcounter<0 && agents[i]->health>0.65 && modcounter%15==0 && randf(0,1)<0.1) { //agent is healthy and is ready to reproduce. Also inject a bit non-determinism
-            //agents[i]->health= 0.8; //the agent is left vulnerable and weak, a bit
-            reproduce(i, agents[i]->MUTRATE1, agents[i]->MUTRATE2); //this adds conf::BABIES new agents to agents[]
-            agents[i]->repcounter= agents[i]->herbivore*randf(conf::REPRATEH-0.1,conf::REPRATEH+0.1) + (1-agents[i]->herbivore)*randf(conf::REPRATEC-0.1,conf::REPRATEC+0.1);
+    //handle sexuate reproduction
+    if (modcounter%15==0) {
+        for (int i = 0; i < agents.size(); i++) {
+            if (agents[i]->repcounter < 0 && agents[i]->health > 0.5 && randf(0, 1) < 0.1) {
+                for (int j = 0; j < agents.size(); j++) {
+                    if (agents[i]->repcounter < 0 && agents[i]->health > 0.5) {
+                        float d = (agents[i]->pos - agents[j]->pos).length();
+                        float c = agents[i]->compatibility(agents[j]);
+                        if (d < conf::MATING_RADIUS){
+                            if(c < conf::COMPATIBILITY_TRESHOLD) {
+                                cout << "mating!! compatibility : " << c << endl;
+
+                                mate(agents[i], agents[j]);
+                                agents[i]->repcounter =
+                                        agents[i]->herbivore * randf(conf::REPRATEH - 0.1, conf::REPRATEH + 0.1) +
+                                        (1 - agents[i]->herbivore) * randf(conf::REPRATEC - 0.1, conf::REPRATEC + 0.1);
+                                agents[j]->repcounter =
+                                        agents[j]->herbivore * randf(conf::REPRATEH - 0.1, conf::REPRATEH + 0.1) +
+                                        (1 - agents[j]->herbivore) * randf(conf::REPRATEC - 0.1, conf::REPRATEC + 0.1);
+                                break;
+                            } else {
+                                cout << "rejected , compatibility : " << c << endl;
+                            }
+                        } else {
+                            //cout << "rejected, distance : " << d << endl;
+                        }
+                    }
+                }
+            }
+        }
+
+        //cout << "going there" << endl;
+
+        //handle assexuate reproduction
+        for (int i = 0; i < agents.size(); i++) {
+            if (agents[i]->repcounter < 0 && agents[i]->health > 0.65 && randf(0, 1) < 0.1) { //agent is healthy and is ready to reproduce. Also inject a bit non-determinism
+                cout << "assexuate reproduction" << endl;
+                //agents[i]->health= 0.8; //the agent is left vulnerable and weak, a bit
+                reproduce(i, agents[i]->MUTRATE1, agents[i]->MUTRATE2); //this adds conf::BABIES new agents to agents[]
+                agents[i]->repcounter = agents[i]->herbivore * randf(conf::REPRATEH - 0.1, conf::REPRATEH + 0.1) +
+                                        (1 - agents[i]->herbivore) * randf(conf::REPRATEC - 0.1, conf::REPRATEC + 0.1);
+            }
         }
     }
+
 
     //add new agents, if environment isn't closed
     if (!CLOSED) {
@@ -535,6 +573,7 @@ void World::addHerbivore()
 }
 
 
+/*
 void World::addNewByCrossover()
 {
 
@@ -563,6 +602,7 @@ void World::addNewByCrossover()
     idcounter++;
     agents.push_back(anew);
 }
+*/
 
 void World::reproduce(int ai, float MR, float MR2)
 {
@@ -572,7 +612,7 @@ void World::reproduce(int ai, float MR, float MR2)
     agents[ai]->initEvent(30,0,0.8,0); //green event means agent reproduced.
     for (int i=0;i<conf::BABIES;i++) {
 
-        Agent *a2 = agents[ai]->reproduce(MR,MR2, innovations, cur_node_id, cur_innov_num);
+        Agent *a2 = agents[ai]->reproduce(MR,MR2, innovations, cur_innov_num);
         a2->id= idcounter;
         idcounter++;
         agents.push_back(a2);
@@ -582,6 +622,15 @@ void World::reproduce(int ai, float MR, float MR2)
         //FILE* fp = fopen("log.txt", "a");
         //fprintf(fp, "%i %i %i\n", 1, this->id, a2.id); //1 marks the event: child is born
         //fclose(fp);
+    }
+}
+
+void World::mate(Agent *a1, Agent *a2) {
+    for (int i=0; i<conf::MATING_BABIES; ++i) {
+        Agent *offspring = a1->mate(a2, innovations, cur_innov_num);
+        a2->id = idcounter;
+        idcounter++;
+        agents.push_back(offspring);
     }
 }
 
