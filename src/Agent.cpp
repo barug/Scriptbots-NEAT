@@ -202,6 +202,9 @@ Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovati
 
 Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, double &cur_innov_num)
 {
+    bool BDEBUG = true;
+    if(BDEBUG) printf("New birth---------------\n");
+
     //this could be made faster by returning a pointer
     //instead of returning by value
     Agent *anew = new Agent();
@@ -226,17 +229,45 @@ Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, d
     anew->herbivore= randf(0,1)<0.5 ? this->herbivore : other->herbivore;
     anew->MUTRATE1= randf(0,1)<0.5 ? this->MUTRATE1 : other->MUTRATE1;
     anew->MUTRATE2= randf(0,1)<0.5 ? this->MUTRATE2 : other->MUTRATE2;
+
+    if (randf(0,1)<0.1) anew->MUTRATE1= randn(anew->MUTRATE1, conf::METAMUTRATE1);
+    if (randf(0,1)<0.1) anew->MUTRATE2= randn(anew->MUTRATE2, conf::METAMUTRATE2);
+    if (this->MUTRATE1<0.001) anew->MUTRATE1= 0.001;
+    if (this->MUTRATE2<0.02) anew->MUTRATE2= 0.02;
+    anew->herbivore= cap(randn(anew->herbivore, 0.03));
+    if (randf(0,1)<anew->MUTRATE1*5) anew->clockf1= randn(anew->clockf1, anew->MUTRATE1);
+    if (anew->clockf1<2) anew->clockf1= 2;
+    if (randf(0,1)<anew->MUTRATE1*5) anew->clockf2= randn(anew->clockf2, anew->MUTRATE2);
+    if (anew->clockf2<2) anew->clockf2= 2;
+
     anew->temperature_preference = randf(0,1)<0.5 ? this->temperature_preference : other->temperature_preference;
-    
+    anew->temperature_preference= cap(randn(anew->temperature_preference, 0.005));
+
+
     anew->smellmod= randf(0,1)<0.5 ? this->smellmod : other->smellmod;
     anew->soundmod= randf(0,1)<0.5 ? this->soundmod : other->soundmod;
     anew->hearmod= randf(0,1)<0.5 ? this->hearmod : other->hearmod;
     anew->eyesensmod= randf(0,1)<0.5 ? this->eyesensmod : other->eyesensmod;
     anew->bloodmod= randf(0,1)<0.5 ? this->bloodmod : other->bloodmod;
+    if(randf(0,1)<anew->MUTRATE1*5) {float oo = anew->smellmod; anew->smellmod = randn(anew->smellmod, anew->MUTRATE2); if(BDEBUG) printf("smell mutated from %f to %f\n", oo, anew->smellmod);}
+    if(randf(0,1)<anew->MUTRATE1*5) {float oo = anew->soundmod; anew->soundmod = randn(anew->soundmod, anew->MUTRATE2); if(BDEBUG) printf("sound mutated from %f to %f\n", oo, anew->soundmod);}
+    if(randf(0,1)<anew->MUTRATE1*5) {float oo = anew->hearmod; anew->hearmod = randn(anew->hearmod, anew->MUTRATE2); if(BDEBUG) printf("hear mutated from %f to %f\n", oo, anew->hearmod);}
+    if(randf(0,1)<anew->MUTRATE1*5) {float oo = anew->eyesensmod; anew->eyesensmod = randn(anew->eyesensmod, anew->MUTRATE2); if(BDEBUG) printf("eyesens mutated from %f to %f\n", oo, anew->eyesensmod);}
+
+    if(randf(0,1)<anew->MUTRATE1*5) {float oo = anew->bloodmod; anew->bloodmod = randn(anew->bloodmod, anew->MUTRATE2); if(BDEBUG) printf("blood mutated from %f to %f\n", oo, anew->bloodmod); }
     
     anew->eyefov= randf(0,1)<0.5 ? this->eyefov : other->eyefov;
     anew->eyedir= randf(0,1)<0.5 ? this->eyedir : other->eyedir;
-    
+
+    for(int i=0;i<NUMEYES;i++){
+        if(randf(0,1)<anew->MUTRATE1*5) anew->eyefov[i] = randn(anew->eyefov[i], anew->MUTRATE2);
+        if(anew->eyefov[i]<0) anew->eyefov[i] = 0;
+
+        if(randf(0,1)<anew->MUTRATE1*5) anew->eyedir[i] = randn(anew->eyedir[i], anew->MUTRATE2);
+        if(anew->eyedir[i]<0) anew->eyedir[i] = 0;
+        if(anew->eyedir[i]>2*M_PI) anew->eyedir[i] = 2*M_PI;
+    }
+
     anew->brain = this->brain->crossover(other->brain);
     anew->brain->mutate(anew->MUTRATE1, anew->MUTRATE2, innovations, cur_innov_num);
     anew->brain->generateNetwork();
