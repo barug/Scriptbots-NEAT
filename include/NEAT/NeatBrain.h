@@ -18,6 +18,7 @@ public:
 
 
     NEATBrain();
+    NEATBrain(std::ifstream &inFile);
     NEATBrain(const NEATBrain &other);
     NEATBrain& operator=(const NEATBrain& other);
 
@@ -29,6 +30,8 @@ public:
     void generateNetwork();
     double compatibility(NEATBrain *other);
     NEATBrain *crossover( const NEATBrain *other );
+
+    void printToFile(std::ofstream &outFile);
 };
 
 

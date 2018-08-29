@@ -146,6 +146,8 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
     else if (key=='r') {
         world->reset();
         printf("Agents reset\n");
+    }else if (key=='a') {
+        world->printToFile();
     } else if (key=='p') {
         //pause
         paused= !paused;

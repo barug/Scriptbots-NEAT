@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     printf("p= pause, d= toggle drawing (for faster computation), f= draw food too, += faster, -= slower\n");
     printf("Pan around by holding down right mouse button, and zoom by holding down middle button.\n");
     
-    World* world = new World();
+    World* world = new World("save");
     GLVIEW->setWorld(world);
 
     //GLUT SETUP

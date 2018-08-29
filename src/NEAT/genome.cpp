@@ -1432,8 +1432,9 @@ bool Genome::mutate_add_node(std::vector<Innovation*> &innovs,double &curinnov) 
 	}
 
 	//If we couldn't find anything so say goodbye
-	if (!found) 
+	if (!found) {
 		return false;
+	}
 
 	//Disabled the gene
 	(*thegene)->enable=false;

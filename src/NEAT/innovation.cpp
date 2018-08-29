@@ -59,3 +59,63 @@ Innovation::Innovation(int nin,int nout,double num1,double w,int t,bool recur) {
 	newnode_id=0;
 	recur_flag=recur;
 }
+
+Innovation::Innovation(std::ifstream &inFile)
+{
+	std::string wordBuff;
+
+	inFile >> wordBuff;
+	if (wordBuff != "innovationBegin")
+		throw std::runtime_error("bad format");
+
+	int intBuff;
+
+	inFile >> intBuff;
+
+	innovation_type = (innovtype) intBuff;  //Either NEWNODE or NEWLINK
+
+	inFile >> node_in_id;     //Two nodes specify where the innovation took place
+	inFile >> node_out_id;
+
+	inFile >> innovation_num1;  //The number assigned to the innovation
+	inFile >> innovation_num2;  // If this is a new node innovation, then there are 2 innovations (links) added for the new node
+
+	inFile >> new_weight;   //  If a link is added, this is its weight
+	inFile >> new_traitnum; // If a link is added, this is its connected trait
+
+	inFile >> newnode_id;  // If a new node was created, this is its node_id
+
+	inFile >> old_innov_num;  // If a new node was created, this is the innovnum of the gene's link it is being stuck inside
+
+	inFile >> recur_flag;
+
+
+	inFile >> wordBuff;
+	if (wordBuff != "innovationEnd")
+		throw std::runtime_error("bad format");
+}
+
+void Innovation::printToFile(std::ofstream &outfile)
+{
+	outfile << "innovationBegin" << std::endl;
+
+	outfile << innovation_type << " ";  //Either NEWNODE or NEWLINK
+
+	outfile << node_in_id << " ";     //Two nodes specify where the innovation took place
+	outfile << node_out_id << " ";
+
+	outfile << innovation_num1 << " ";  //The number assigned to the innovation
+	outfile << innovation_num2 << " ";  // If this is a new node innovation, then there are 2 innovations (links) added for the new node
+
+	outfile << new_weight << " ";   //  If a link is added, this is its weight
+	outfile << new_traitnum << " "; // If a link is added, this is its connected trait
+
+	outfile << newnode_id << " ";  // If a new node was created, this is its node_id
+
+	outfile << old_innov_num << " ";  // If a new node was created, this is the innovnum of the gene's link it is being stuck inside
+
+	outfile << recur_flag << " ";
+
+
+	outfile << "innovationEnd" << std::endl;
+}

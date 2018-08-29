@@ -15,6 +15,7 @@ class Agent
 
 public:
     Agent();
+    Agent(std::ifstream &inFile);
     ~Agent();
 
     void makeBasicBrain();
@@ -27,6 +28,8 @@ public:
     double compatibility(Agent *other);
     Agent *reproduce(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
     Agent *mate(const Agent* other, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
+
+    void printToFile(std::ofstream &outFile);
 
 
     Vector2f pos;
@@ -85,11 +88,6 @@ public:
 //    AssemblyBrain brain;
 //    MLPBrain brain;
     NEATBrain *brain;
-
-    
-    //will store the mutations that this agent has from its parent
-    //can be used to tune the mutation rate
-    std::vector<std::string> mutations;
 };
 
 #endif // AGENT_H

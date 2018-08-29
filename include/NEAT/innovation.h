@@ -16,6 +16,8 @@
 #ifndef _INNOVATION_H_
 #define _INNOVATION_H_
 
+#include <fstream>
+
 namespace NEAT {
 
 	enum innovtype {
@@ -72,6 +74,10 @@ namespace NEAT {
 
 		//Constructor for a recur link
 		Innovation(int nin,int nout,double num1,double w,int t,bool recur);
+
+		Innovation(std::ifstream &inFile);
+
+		void printToFile(std::ofstream &outfile);
 
 	};
 

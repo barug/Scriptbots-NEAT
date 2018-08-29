@@ -83,9 +83,6 @@ void Agent::makeBasicBrain() {
 void Agent::printSelf()
 {
     printf("Agent age=%i\n", age);
-    for (int i=0;i<mutations.size();i++) {
-        cout << mutations[i];
-    }
 }
 
 void Agent::initEvent(float size, float r, float g, float b)
@@ -273,4 +270,162 @@ Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, d
     anew->brain->generateNetwork();
 
     return anew;
+}
+
+void Agent::printToFile(std::ofstream &outFile)
+{
+    outFile << "AgentBegin" << std::endl;
+    outFile << pos.x << " ";
+    outFile << pos.y << " ";
+    outFile << health << " ";
+    outFile << angle << " ";
+
+    outFile << red << " ";
+    outFile << gre << " ";
+    outFile << blu << " ";
+
+    outFile << w1 << " "; //wheel speeds
+    outFile << w2 << " ";
+    outFile << boost << " ";
+
+    outFile << spikeLength << " ";
+    outFile << age << " ";
+
+    outFile << spiked << " ";
+
+    for (std::vector<float>::iterator it = in.begin(); it != in.end(); ++it) {
+        outFile << *it << " ";
+    }
+    for (std::vector<float>::iterator it = out.begin(); it != out.end(); ++it) {
+        outFile << *it << " ";
+    }
+
+    outFile << repcounter << " ";
+    outFile << gencount << " "; //generation counter
+    outFile << hybrid << " "; //is this agent result of crossover?
+    outFile << clockf1 << " ";
+    outFile << clockf2 << " "; //the frequencies of the two clocks of this bot
+    outFile << soundmul << " "; //sound multiplier of this bot. It can scream, or be very sneaky. This is actually always set to output 8
+
+    //variables for drawing purposes
+    outFile << indicator << " ";
+    outFile << ir << " ";
+    outFile << ig << " ";
+    outFile << ib << " ";
+    outFile << selectflag << " ";
+    outFile << dfood << " ";
+
+    outFile << give << " ";
+
+    outFile << id << " ";
+
+    //inhereted stuff
+    outFile << herbivore << " "; //is this agent a herbivore? between 0 and 1
+    outFile << MUTRATE1 << " "; //how often do mutations occur?
+    outFile << MUTRATE2 << " "; //how significant are they?
+    outFile << temperature_preference << " "; //what temperature does this agent like? [0 to 1]
+
+    outFile << smellmod << " ";
+    outFile << soundmod << " ";
+    outFile << hearmod << " ";
+    outFile << eyesensmod << " ";
+    outFile << bloodmod << " ";
+
+    for (std::vector<float>::iterator it = eyefov.begin(); it != eyefov.end(); ++it) {
+        outFile << *it << " ";
+    }
+    for (std::vector<float>::iterator it = eyedir.begin(); it != eyedir.end(); ++it) {
+        outFile << *it << " ";
+    }
+    brain->printToFile(outFile);
+    outFile << "AgentEnd" << std::endl;
+}
+
+Agent::Agent(std::ifstream &inFile)
+{
+    std::string wordBuff;
+
+    inFile >> wordBuff;
+    if (wordBuff != "AgentBegin")
+        throw std::runtime_error("bad format");
+
+    float x, y;
+    inFile >> x;
+    inFile >> y;
+    pos = Vector2f(x, y);
+
+    inFile >>  health;
+    inFile >>  angle;
+
+    inFile >>  red;
+    inFile >>  gre;
+    inFile >>  blu;
+
+    inFile >>  w1; //wheel speeds
+    inFile >>  w2;
+    inFile >>  boost;
+
+    inFile >>  spikeLength;
+    inFile >>  age;
+
+    inFile >>  spiked;
+
+    float val;
+    in.resize(INPUTSIZE, 0);
+    out.resize(OUTPUTSIZE, 0);
+    for (int i = 0; i < INPUTSIZE; ++i) {
+        inFile >> val;
+        in[i] = val;
+    }
+    for (int i = 0; i < OUTPUTSIZE; ++i) {
+        inFile >> val;
+        out[i] = val;
+    }
+
+    inFile >> repcounter;
+    inFile >> gencount; //generation counter
+    inFile >> hybrid; //is this agent result of crossover?
+    inFile >> clockf1;
+    inFile >> clockf2; //the frequencies of the two clocks of this bot
+    inFile >> soundmul; //sound multiplier of this bot. It can scream, or be very sneaky. This is actually always set to output 8
+
+    //variables for drawing purposes
+    inFile >> indicator;
+    inFile >> ir;
+    inFile >> ig;
+    inFile >> ib;
+    inFile >> selectflag;
+    inFile >> dfood;
+
+    inFile >> give;
+
+    inFile >> id;
+
+    //inhereted stuff
+    inFile >> herbivore; //is this agent a herbivore? between 0 and 1
+    inFile >> MUTRATE1; //how often do mutations occur?
+    inFile >> MUTRATE2; //how significant are they?
+    inFile >> temperature_preference; //what temperature does this agent like? [0 to 1]
+
+    inFile >> smellmod;
+    inFile >> soundmod;
+    inFile >> hearmod;
+    inFile >> eyesensmod;
+    inFile >> bloodmod;
+
+    eyefov.resize(NUMEYES, 0);
+    eyedir.resize(NUMEYES, 0);
+    for (int i = 0; i < NUMEYES; ++i) {
+        inFile >> val;
+        eyefov[i] = val;
+    }
+    for (int i = 0; i < NUMEYES; ++i) {
+        inFile >> val;
+        eyedir[i] = val;
+    }
+
+    brain = new NEATBrain(inFile);
+    inFile >> wordBuff;
+    if (wordBuff != "AgentEnd")
+        throw std::runtime_error("bad format");
 }

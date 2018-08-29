@@ -10,6 +10,7 @@ class World
 {
 public:
     World();
+    World(std::string path);
     ~World();
     
     void update();
@@ -40,6 +41,8 @@ public:
     void addHerbivore();
     
     void positionOfInterest(int type, float &xi, float &yi);
+
+    void printToFile();
     
     std::vector<int> numCarnivore;
     std::vector<int> numHerbivore; 

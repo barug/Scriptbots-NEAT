@@ -18,6 +18,11 @@ NEATBrain::NEATBrain()
     _net = nullptr;
 }
 
+NEATBrain::NEATBrain(std::ifstream &inFile) {
+    _gen = new Genome(0, inFile);
+    _net = _gen->genesis(0);
+}
+
 NEATBrain::NEATBrain(const NEATBrain &other)
 {
     _gen = other._gen->duplicate(0);
@@ -106,4 +111,9 @@ NEATBrain *NEATBrain::crossover( const NEATBrain *other )
     NEATBrain *newBrain = new NEATBrain();
     newBrain->_gen = other->_gen->mate_multipoint(other->_gen, randf(0, 1), 0, randf(0, 1), 0);
     return newBrain;
+}
+
+void NEATBrain::printToFile(std::ofstream &outFile)
+{
+    _gen->print_to_file(outFile);
 }
