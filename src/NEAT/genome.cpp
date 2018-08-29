@@ -1628,37 +1628,37 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 				(((*thegene)->lnk)->out_node==nodep2)&&
 				((*thegene)->lnk)->is_recurrent))) {
 					++thegene;
-				}
+			}
 
-				if (thegene!=genes.end())
-					trycount++;
-				else {
-					count=0;
-					recurflag=phenotype->is_recur(nodep1->analogue,nodep2->analogue,count,thresh);
+            if (thegene!=genes.end())
+                trycount++;
+            else {
+                count=0;
+                recurflag=phenotype->is_recur(nodep1,nodep2,count,thresh);
 
-					//ADDED: CONSIDER connections out of outputs recurrent
-					if (((nodep1->type)==OUTPUT)||
-						((nodep2->type)==OUTPUT))
-						recurflag=true;
+                //ADDED: CONSIDER connections out of outputs recurrent
+                if (((nodep1->type)==OUTPUT)||
+                    ((nodep2->type)==OUTPUT))
+                    recurflag=true;
 
-					//Exit if the network is faulty (contains an infinite loop)
-					//NOTE: A loop doesn't really matter
-					//if (count>thresh) {
-					//  cout<<"LOOP DETECTED DURING A RECURRENCY CHECK"<<std::endl;
-					//  return false;
-					//}
+                //Exit if the network is faulty (contains an infinite loop)
+                //NOTE: A loop doesn't really matter
+                //if (count>thresh) {
+                //  cout<<"LOOP DETECTED DURING A RECURRENCY CHECK"<<std::endl;
+                //  return false;
+                //}
 
-					//Make sure it finds the right kind of link (recur)
-					if (!(recurflag))
-						trycount++;
-					else {
-						trycount=tries;
-						found=true;
-					}
-
-				}
+                //Make sure it finds the right kind of link (recur)
+                if (!(recurflag))
+                    trycount++;
+                else {
+                    trycount=tries;
+                    found=true;
+                }
+            }
 
 		}
+
 	}
 	else {
 		//Loop to find a nonrecurrent link
@@ -1687,42 +1687,41 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 
 			//See if a link already exists  ALSO STOP AT END OF GENES!!!!
 			thegene=genes.begin();
-			while ((thegene!=genes.end()) && 
-				((nodep2->type)!=SENSOR) &&   //Don't allow SENSORS to get input
-				(!((((*thegene)->lnk)->in_node==nodep1)&&
-				(((*thegene)->lnk)->out_node==nodep2)&&
-				(!(((*thegene)->lnk)->is_recurrent))))) {
-					++thegene;
-				}
+            while ((thegene!=genes.end()) &&
+                   ((nodep2->type)!=SENSOR) &&   //Don't allow SENSORS to get input
+                   (!((((*thegene)->lnk)->in_node==nodep1)&&
+                   (((*thegene)->lnk)->out_node==nodep2)&&
+                           !(((*thegene)->lnk)->is_recurrent)))) {
+                ++thegene;
+            }
 
-				if (thegene!=genes.end())
-					trycount++;
-				else {
+            if (thegene!=genes.end())
+                trycount++;
+            else {
 
-					count=0;
-					recurflag=phenotype->is_recur(nodep1->analogue,nodep2->analogue,count,thresh);
+                count=0;
+                recurflag=phenotype->is_recur(nodep1,nodep2,count,thresh);
 
-					//ADDED: CONSIDER connections out of outputs recurrent
-					if (((nodep1->type)==OUTPUT)||
-						((nodep2->type)==OUTPUT))
-						recurflag=true;
+                //ADDED: CONSIDER connections out of outputs recurrent
+                if (((nodep1->type)==OUTPUT)||
+                    ((nodep2->type)==OUTPUT)) {
+                    recurflag = true;
+                }
+                //Exit if the network is faulty (contains an infinite loop)
+                if (count>thresh) {
+                    //cout<<"LOOP DETECTED DURING A RECURRENCY CHECK"<<std::endl;
+                    //return false;
+                }
 
-					//Exit if the network is faulty (contains an infinite loop)
-					if (count>thresh) {
-						//cout<<"LOOP DETECTED DURING A RECURRENCY CHECK"<<std::endl;
-						//return false;
-					}
+                //Make sure it finds the right kind of link (recur or not)
+                if (recurflag)
+                    trycount++;
+                else {
+                    trycount=tries;
+                    found=true;
+                }
 
-					//Make sure it finds the right kind of link (recur or not)
-					if (recurflag)
-						trycount++;
-					else {
-						trycount=tries;
-						found=true;
-					}
-
-				}
-
+            }
 		} //End of normal link finding loop
 	}
 

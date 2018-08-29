@@ -171,8 +171,7 @@ void World::update()
                         if (d < conf::MATING_RADIUS){
                             //float c = agents[i]->compatibility(agents[j]);
                             if(c < conf::MATING_COMPATIBILITY_TRESHOLD) {
-                                cout << "mating!! compatibility : " << c << " distance : " << d << endl;
-                                cout << conf::MATING_COMPATIBILITY_TRESHOLD << endl;
+                                //cout << "mating!! compatibility : " << c << " distance : " << d << endl;
 
                                 mate(agents[i], agents[j]);
                                 agents[i]->repcounter =
@@ -183,7 +182,7 @@ void World::update()
                                         (1 - agents[j]->herbivore) * randf(conf::REPRATEC - 0.1, conf::REPRATEC + 0.1);
                                 break;
                             } else {
-                                cout << "rejected , compatibility : " << c << endl;
+                                //cout << "rejected , compatibility : " << c << endl;
                             }
                         } else {
                             //cout << "rejected, distance : " << d << endl;
@@ -198,7 +197,7 @@ void World::update()
         //handle assexuate reproduction
         for (int i = 0; i < agents.size(); i++) {
             if (agents[i]->repcounter < 0 && agents[i]->health > 0.65 && randf(0, 1) < 0.1) { //agent is healthy and is ready to reproduce. Also inject a bit non-determinism
-                cout << "assexuate reproduction" << endl;
+                //cout << "assexuate reproduction" << endl;
                 //agents[i]->health= 0.8; //the agent is left vulnerable and weak, a bit
                 reproduce(i, agents[i]->MUTRATE1, agents[i]->MUTRATE2); //this adds conf::BABIES new agents to agents[]
                 agents[i]->repcounter = agents[i]->herbivore * randf(conf::REPRATEH - 0.1, conf::REPRATEH + 0.1) +

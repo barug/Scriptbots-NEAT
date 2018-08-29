@@ -66,8 +66,7 @@ void NEATBrain::mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &inno
     }
 
     else if (randf(0, 1) < MR) {
-        // todo : find about meaning of the number of tries parameter
-        _gen->mutate_add_link(innovations, cur_innov_num, 5);
+        _gen->mutate_add_link(innovations, cur_innov_num, 100);
     }
 
     else {
