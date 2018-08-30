@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include "GLView.h"
 #include "VTKView.h"
 #include "World.h"
@@ -22,8 +24,27 @@ int main(int argc, char **argv) {
     
     printf("p= pause, d= toggle drawing (for faster computation), f= draw food too, += faster, -= slower\n");
     printf("Pan around by holding down right mouse button, and zoom by holding down middle button.\n");
-    
-    World* world = new World("save");
+
+    World* world = nullptr;
+
+    int opt;
+    while ((opt = getopt(argc, argv, "l:s:")) != -1) {
+        switch (opt) {
+            case 'l':
+                world = new World(optarg);
+                break;
+            case 's':
+                world = new World();
+                world->setSaveFilePath(optarg);
+                break;
+            default: /* '?' */
+                break;
+        }
+    }
+
+    if (!world)
+        world = new World();
+
     GLVIEW->setWorld(world);
 
     //GLUT SETUP

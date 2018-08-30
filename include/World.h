@@ -43,6 +43,7 @@ public:
     void positionOfInterest(int type, float &xi, float &yi);
 
     void printToFile();
+    void setSaveFilePath(std::string path);
     
     std::vector<int> numCarnivore;
     std::vector<int> numHerbivore; 
@@ -57,7 +58,9 @@ private:
     
     void reproduce(int ai, float MR, float MR2);
     void mate(Agent *a1, Agent *a2);
-    
+
+    std::string saveFilePath;
+
     int modcounter;
     int current_epoch;
     int idcounter;

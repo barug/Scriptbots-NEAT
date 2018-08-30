@@ -10,14 +10,15 @@
 using namespace std;
 
 World::World() :
-        modcounter(0),
-        current_epoch(0),
-        idcounter(0),
-        FW(conf::WIDTH/conf::CZ),
-        FH(conf::HEIGHT/conf::CZ),
-        CLOSED(false),
-        cur_node_id(0),
-        cur_innov_num(0)
+    saveFilePath("save"),
+    modcounter(0),
+    current_epoch(0),
+    idcounter(0),
+    FW(conf::WIDTH/conf::CZ),
+    FH(conf::HEIGHT/conf::CZ),
+    CLOSED(false),
+    cur_node_id(0),
+    cur_innov_num(0)
 {
     addRandomBots(conf::NUMBOTS);
     //inititalize food layer
@@ -32,6 +33,72 @@ World::World() :
     numHerbivore.resize(200, 0);
     ptr=0;
 }
+
+World::World(std::string path) :
+    saveFilePath("save")
+{
+    std::ifstream inFile(path, std::ifstream::in);
+    std::string wordBuff;
+
+    inFile >> wordBuff;
+    if (wordBuff != "worldBegin")
+        throw std::runtime_error("bad format");
+
+    numCarnivore.resize(200, 0);
+    numHerbivore.resize(200, 0);
+    ptr=0;
+
+    inFile >> modcounter;
+    inFile >> current_epoch;
+    inFile >> idcounter;
+    std::cout << modcounter << " " << current_epoch << " " << idcounter << std::endl;
+
+    int numAgents;
+    inFile >> numAgents;
+    std::cout << "numAgents : " << numAgents << std::endl;
+    for (int i = 0; i < numAgents; ++i) {
+        agents.push_back(new Agent(inFile));
+    }
+
+    int numInnovations;
+    inFile >> numInnovations;
+    for (int i = 0; i < numInnovations; i++) {
+        innovations.push_back(new NEAT::Innovation(inFile));
+    }
+
+    inFile >> cur_node_id ;  //Current label number available
+    inFile >> cur_innov_num ;
+
+    // food
+    inFile >> FW ;
+    inFile >> FH ;
+    inFile >> fx ;
+    inFile >> fy ;
+
+    inFile >> wordBuff;
+    if (wordBuff != "foodMapBegin")
+        throw std::runtime_error("bad format");
+
+    for (int x=0;x<FW;x++) {
+        for (int y=0;y<FH;y++) {
+            inFile >> food[x][y];
+        }
+    }
+
+    inFile >> wordBuff;
+    if (wordBuff != "foodMapEnd")
+        throw std::runtime_error("bad format");
+    inFile >> CLOSED;
+
+    inFile >> wordBuff;
+    if (wordBuff != "worldEnd")
+        throw std::runtime_error("bad format");
+
+    inFile.close();
+
+    std::cout << "finished loading" << std::endl;
+}
+
 
 void World::update()
 {
@@ -559,7 +626,7 @@ void World::printToFile()
 {
     std::cout << "saving" << std::endl;
     std::ofstream outFile;
-    outFile.open("save", std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+    outFile.open(saveFilePath, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
 
     outFile << "worldBegin" << std::endl;
     outFile << modcounter << " ";
@@ -599,70 +666,10 @@ void World::printToFile()
     std::cout << "finished saving" << std::endl;
 }
 
-World::World(std::string path)
+void World::setSaveFilePath(std::string path)
 {
-    std::ifstream inFile(path, std::ifstream::in);
-    std::string wordBuff;
-
-    inFile >> wordBuff;
-    if (wordBuff != "worldBegin")
-        throw std::runtime_error("bad format");
-
-    numCarnivore.resize(200, 0);
-    numHerbivore.resize(200, 0);
-    ptr=0;
-
-    inFile >> modcounter;
-    inFile >> current_epoch;
-    inFile >> idcounter;
-    std::cout << modcounter << " " << current_epoch << " " << idcounter << std::endl;
-
-    int numAgents;
-    inFile >> numAgents;
-    std::cout << "numAgents : " << numAgents << std::endl;
-    for (int i = 0; i < numAgents; ++i) {
-        agents.push_back(new Agent(inFile));
-    }
-
-    int numInnovations;
-    inFile >> numInnovations;
-    for (int i = 0; i < numInnovations; i++) {
-        innovations.push_back(new NEAT::Innovation(inFile));
-    }
-
-    inFile >> cur_node_id ;  //Current label number available
-    inFile >> cur_innov_num ;
-
-    // food
-    inFile >> FW ;
-    inFile >> FH ;
-    inFile >> fx ;
-    inFile >> fy ;
-
-    inFile >> wordBuff;
-    if (wordBuff != "foodMapBegin")
-        throw std::runtime_error("bad format");
-
-    for (int x=0;x<FW;x++) {
-        for (int y=0;y<FH;y++) {
-            inFile >> food[x][y];
-        }
-    }
-
-    inFile >> wordBuff;
-    if (wordBuff != "foodMapEnd")
-        throw std::runtime_error("bad format");
-    inFile >> CLOSED;
-
-    inFile >> wordBuff;
-    if (wordBuff != "worldEnd")
-        throw std::runtime_error("bad format");
-
-    inFile.close();
-
-    std::cout << "finished loading" << std::endl;
+    saveFilePath = path;
 }
-
 
 void World::addCarnivore()
 {
