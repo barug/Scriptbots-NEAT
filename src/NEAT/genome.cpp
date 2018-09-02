@@ -667,10 +667,11 @@ Network *Genome::genesis(int id) {
 		curtrait=(*curnode)->nodetrait;
 		newnode->derive_trait(curtrait);
 
+		newnode->gen_node_label = (*curnode)->gen_node_label;
 		//Check for input or output designation of node
-		if (((*curnode)->gen_node_label)==INPUT) 
+		if (((*curnode)->gen_node_label)==INPUT)
 			inlist.push_back(newnode);
-		if (((*curnode)->gen_node_label)==BIAS) 
+		if (((*curnode)->gen_node_label)==BIAS)
 			inlist.push_back(newnode);
 		if (((*curnode)->gen_node_label)==OUTPUT)
 			outlist.push_back(newnode);
@@ -1806,7 +1807,6 @@ bool Genome::mutate_add_link(std::vector<Innovation*> &innovs,double &curinnov,i
 		//Now add the new Genes to the Genome
 		//genes.push_back(newgene);  //Old way - could result in out-of-order innovation numbers in rtNEAT
 		add_gene(genes,newgene);  //Adds the gene in correct order
-
 
 		return true;
 	}

@@ -30,10 +30,10 @@ namespace NEAT {
 	};
 
 	enum nodeplace {
-		HIDDEN = 0,
-		INPUT = 1,
-		OUTPUT = 2,
-		BIAS = 3
+		INPUT = 0,
+		OUTPUT = 1,
+		BIAS = 2,
+        HIDDEN = 3,
 	};
 
 	enum functype {

@@ -140,39 +140,51 @@ void GLView::processMouseActiveMotion(int x, int y)
 
 void GLView::processNormalKeys(unsigned char key, int x, int y)
 {
-
     if (key == 27)
         exit(0);
     else if (key=='r') {
         world->reset();
         printf("Agents reset\n");
-    }else if (key=='a') {
+    }else if (key=='m') {
         world->printToFile();
-    } else if (key=='p') {
+    } else if (key=='e') { //dezoom
+
+        VTKVIEW->zoom(0.95);
+    } else if (key=='a') { //zoom
+        VTKVIEW->zoom(1.05);
+    } else if (key=='z') { //up
+        VTKVIEW->move(0, -5);
+    } else if (key=='s') { //down
+        VTKVIEW->move(0, 5);
+    } else if (key=='q') { //left
+        VTKVIEW->move(5, 0);
+    } else if (key=='d') { //right
+        VTKVIEW->move(-5, 0);
+    }
+    else if (key=='p') {
         //pause
         paused= !paused;
-    } else if (key=='d') {
+    } else if (key=='f') {
         //drawing
         draw= !draw;
     } else if (key==43) {
         //+
         skipdraw++;
-
     } else if (key==45) {
         //-
         skipdraw--;
-    } else if (key=='f') {
+    } else if (key=='g') {
         drawfood=!drawfood;
     } /*else if (key=='a') {
         for (int i=0;i<10;i++){world->addNewByCrossover();}
-    }*/ else if (key=='q') {
+    }*/ else if (key=='w') {
         for (int i=0;i<10;i++){world->addCarnivore();}
     } else if (key=='h') {
         for (int i=0;i<10;i++){world->addHerbivore();}
     } else if (key=='c') {
         world->setClosed( !world->isClosed() );
         printf("Environment closed now= %i\n",world->isClosed());
-    } else if (key=='s') {
+    } else if (key=='x') {
         if(following==0) following=2;
         else following=0;
     } else if(key =='o') {
