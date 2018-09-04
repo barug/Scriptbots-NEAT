@@ -116,6 +116,7 @@ void World::update()
         std::pair<int,int> num_herbs_carns = numHerbCarnivores();
         numHerbivore[ptr]= num_herbs_carns.first;
         numCarnivore[ptr]= num_herbs_carns.second;
+        VTKPLOTVIEW->addDataRow(num_herbs_carns.first, num_herbs_carns.second);
         ptr++;
         if(ptr == numHerbivore.size()) ptr = 0;
     }
@@ -788,8 +789,6 @@ bool World::isClosed() const
 {
     return CLOSED;
 }
-
-#include "VTKView.h"
 
 void World::processMouse(int button, int state, int x, int y)
 {

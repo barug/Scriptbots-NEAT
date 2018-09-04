@@ -2,6 +2,7 @@
 
 #include "GLView.h"
 #include "VTKView.h"
+#include "VTKPlotView.h"
 #include "World.h"
 
 #include "config.h"
@@ -16,6 +17,8 @@
 
 GLView* GLVIEW = new GLView(0);
 VTKView* VTKVIEW = new VTKView();
+VTKPlotView * VTKPLOTVIEW = new VTKPlotView();
+
 
 int main(int argc, char **argv) {
     srand(time(0));
@@ -62,7 +65,6 @@ int main(int argc, char **argv) {
     glutMouseFunc(gl_processMouse);
     glutMotionFunc(gl_processMouseActiveMotion);
 
-    VTKVIEW->init();
     glutMainLoop();
     return 0;
 }

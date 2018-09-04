@@ -72,6 +72,7 @@ VTKView::VTKView()
     //vtkNew<vtkGraphLayout> layout;
 
     //_strategy->SetRestDistance(0.1);
+    _strategy->SetVertexAttribute("nodeType");
     _layout->SetLayoutStrategy(_strategy.GetPointer());
     //layout->SetInputConnection(source->GetOutputPort());
     _layout->SetInputData(_graph.GetPointer());
@@ -92,6 +93,10 @@ VTKView::VTKView()
     vertex_mapper->SetScalarRange(0,3);
     vertex_mapper->SetScalarModeToUsePointFieldData();
     vertex_mapper->SelectColorArray("nodeType");
+
+    vtkNew<vtkActor> edge_actor;
+    vtkNew<vtkActor> vertex_actor;
+
 
 // create the actor for displaying vertices
     vertex_actor->SetMapper(vertex_mapper.GetPointer());
@@ -117,50 +122,41 @@ VTKView::VTKView()
     _ren->AddActor(edge_actor.GetPointer());
 
     _camera = _ren->GetActiveCamera();
+
     _renWin->AddRenderer(_ren.GetPointer());
 }
 
-void VTKView::init()
-{
-    _renWin->Start();
-}
-
-void VTKView::reshape(int width, int height) {
-    _renWin->SetSize( width, height );
-}
-
-void VTKView::draw() {
-    _renWin->Render();
-}
-
 void VTKView::zoom(double factor) {
-    _camera->Zoom(factor);
-    
-    _renWin->Render();
+    if (_graph->GetNumberOfVertices() > 0) {
+        _camera->Zoom(factor);
+        _renWin->Render();
+    }
 }
 
 void VTKView::move(double x, double y) {
-    double lastScale = 2.0 * _camera->GetParallelScale() / _ren->GetSize()[1];
-    double lastFocalPt[] = {0, 0, 0};
-    _camera->GetFocalPoint(lastFocalPt);
-    double lastPos[] = {0, 0, 0};
-    _camera->GetPosition(lastPos);
+    if (_graph->GetNumberOfVertices() > 0) {
+        double lastScale = 2.0 * _camera->GetParallelScale() / _ren->GetSize()[1];
+        double lastFocalPt[] = {0, 0, 0};
+        _camera->GetFocalPoint(lastFocalPt);
+        double lastPos[] = {0, 0, 0};
+        _camera->GetPosition(lastPos);
 
-    double delta[] = {0, 0, 0};
-    delta[0] = -lastScale*(x);
-    delta[1] = -lastScale*(y);
-    delta[2] = 0;
-    _camera->SetFocalPoint(lastFocalPt[0] + delta[0], lastFocalPt[1] + delta[1], lastFocalPt[2] + delta[2]);
-    _camera->SetPosition(lastPos[0] + delta[0], lastPos[1] + delta[1], lastPos[2] + delta[2]);
+        double delta[] = {0, 0, 0};
+        delta[0] = -lastScale * (x);
+        delta[1] = -lastScale * (y);
+        delta[2] = 0;
+        _camera->SetFocalPoint(lastFocalPt[0] + delta[0], lastFocalPt[1] + delta[1], lastFocalPt[2] + delta[2]);
+        _camera->SetPosition(lastPos[0] + delta[0], lastPos[1] + delta[1], lastPos[2] + delta[2]);
 
-    _renWin->Render();
+        _renWin->Render();
+    }
 }
 
 
 void VTKView::displayAgentInfo(const Agent *agent) {
     std::vector<NEAT::NNode*> &nodes = agent->brain->_net->all_nodes;
 
-    _strategy->SetVertexAttribute("nodeType");
+
     _layout->SetLayoutStrategy(_strategy.GetPointer());
     _graph->Initialize();
     _graph->SetNumberOfVertices(nodes.size());
@@ -172,7 +168,6 @@ void VTKView::displayAgentInfo(const Agent *agent) {
     nodeTypeArray->SetName("nodeType");
 
     for (NEAT::NNode* node: nodes) {
-        std::cout << "type : " << node->gen_node_label << std::endl;
         nodeTypeArray->SetComponent(node->node_id - 1, 0, node->gen_node_label);
 
         for (auto link: node->incoming) {
@@ -186,5 +181,7 @@ void VTKView::displayAgentInfo(const Agent *agent) {
     _strategy->Initialize();
     _layout->Update();
     _ren->ResetCamera();
+
+    //ren2->Render();
     _renWin->Render();
 }

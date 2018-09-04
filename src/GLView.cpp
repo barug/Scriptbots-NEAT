@@ -13,17 +13,6 @@
 
 
 
-#include <vtkCylinderSource.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkProperty.h>
-#include <vtkCamera.h>
-#include <vtkSmartPointer.h>
-
-
 void gl_processNormalKeys(unsigned char key, int x, int y)
 {
     GLVIEW->processNormalKeys(key, x, y);

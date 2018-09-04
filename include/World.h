@@ -5,6 +5,8 @@
 #include "View.h"
 #include "Agent.h"
 #include "settings.h"
+#include "VTKView.h"
+#include "VTKPlotView.h"
 #include <vector>
 class World
 {
