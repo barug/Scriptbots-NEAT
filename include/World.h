@@ -63,8 +63,7 @@ private:
     
     void reproduce(int ai, float MR, float MR2);
     void mate(Agent *a1, Agent *a2);
-
-    void initSpeciation();
+    
     void speciateAgent(Agent *agent);
 
     void removeShortLivedSpecies();

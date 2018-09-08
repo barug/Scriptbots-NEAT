@@ -763,63 +763,6 @@ void World::mate(Agent *a1, Agent *a2) {
     }
 }
 
-void World::initSpeciation()
-{
-    std::vector<Agent*>::iterator curAgent;  //For stepping through Population
-    std::vector<Species*>::iterator curspecies; //Steps through species
-    Agent *compAgent= nullptr;  //Agent for comparison
-    Species *newspecies; //For adding a new species
-
-    int counter=0; //Species counter
-
-    //Step through all existing Agents
-    for(curAgent=agents.begin();curAgent!=agents.end();++curAgent) {
-
-        //For each Agent, search for a species it is compatible to
-        curspecies=all_species.begin();
-        if (curspecies==all_species.end()){
-            //Create the first species
-            newspecies=new Species(++counter);
-            all_species.push_back(newspecies);
-            newspecies->addAgent(*curAgent);  //Add the current Agent
-            //(*curAgent)->species=newspecies;  //Point Agent to its species
-        }
-        else {
-            compAgent=(*curspecies)->first();
-            while((compAgent!=nullptr)&&
-                  (curspecies!=all_species.end())) {
-                cout << "compat : " << (*curAgent)->compatibility(compAgent) << endl;
-                if (((*curAgent)->compatibility(compAgent))<conf::MATING_COMPATIBILITY_TRESHOLD) {
-
-                    //Found compatible species, so add this Agent to it
-                    (*curspecies)->addAgent(*curAgent);
-                    //(*curAgent)->species=(*curspecies);  //Point Agent to its species
-                    compAgent=nullptr;  //Note the search is over
-                }
-                else {
-
-                    //Keep searching for a matching species
-                    ++curspecies;
-                    if (curspecies!=all_species.end())
-                        compAgent=(*curspecies)->first();
-                }
-            }
-
-            //If we didn't find a match, create a new species
-            if (compAgent!=nullptr) {
-                newspecies=new Species(++counter);
-                all_species.push_back(newspecies);
-                newspecies->addAgent(*curAgent);  //Add the current Agent
-                //(*curAgent)->species=newspecies;  //Point Agent to its species
-            }
-
-        } //end else
-
-    } //end for
-
-    last_species=counter;  //Keep track of highest species
-}
-
 void World::speciateAgent(Agent *newAgent)
 {
     std::vector<Species*>::iterator curspecies;
