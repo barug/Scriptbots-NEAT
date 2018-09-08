@@ -5,10 +5,15 @@
 #include "AssemblyBrain.h"
 #include "MLPBrain.h"
 #include "NEAT/NeatBrain.h"
+#include "NEAT/Species.h"
 #include "vmath.h"
 
 #include <vector>
 #include <string>
+
+namespace NEAT {
+    class Species;
+}
 
 class Agent
 {
@@ -28,6 +33,8 @@ public:
     double compatibility(Agent *other);
     Agent *reproduce(float MR, float MR2, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
     Agent *mate(const Agent* other, std::vector<NEAT::Innovation*> &innovations, double &cur_innov_num);
+
+    void removeFromSpecies();
 
     void printToFile(std::ofstream &outFile);
 
@@ -87,7 +94,8 @@ public:
 //    DWRAONBrain brain; //THE BRAIN!!!!
 //    AssemblyBrain brain;
 //    MLPBrain brain;
-    NEATBrain *brain;
+    NEAT::NEATBrain *brain;
+    NEAT::Species *species;
 };
 
 #endif // AGENT_H

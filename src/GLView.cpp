@@ -166,11 +166,11 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         drawfood=!drawfood;
     } /*else if (key=='a') {
         for (int i=0;i<10;i++){world->addNewByCrossover();}
-    }*/ else if (key=='w') {
+    } else if (key=='w') {
         for (int i=0;i<10;i++){world->addCarnivore();}
     } else if (key=='h') {
         for (int i=0;i<10;i++){world->addHerbivore();}
-    } else if (key=='c') {
+    }*/ else if (key=='c') {
         world->setClosed( !world->isClosed() );
         printf("Environment closed now= %i\n",world->isClosed());
     } else if (key=='x') {

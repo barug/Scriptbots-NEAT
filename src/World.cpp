@@ -8,6 +8,7 @@
 #include <stdio.h>
 
 using namespace std;
+using namespace NEAT;
 
 World::World() :
     saveFilePath("save"),
@@ -19,9 +20,14 @@ World::World() :
     CLOSED(false),
     cur_node_id(0),
     cur_innov_num(0)
-{
+    {
     addRandomBots(conf::NUMBOTS);
-    //inititalize food layer
+    /*initSpeciation();
+    std::cout << "n Species : " << all_species.size() << endl;
+    for (auto species: all_species) {
+        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOAgents() << endl;
+    }
+    *///inititalize food layer
 
     for (int x=0;x<FW;x++) {
         for (int y=0;y<FH;y++) {
@@ -36,7 +42,7 @@ World::World() :
 
 World::World(std::string path) :
     saveFilePath("save")
-{
+    {
     std::ifstream inFile(path, std::ifstream::in);
     std::string wordBuff;
 
@@ -119,6 +125,7 @@ void World::update()
         VTKPLOTVIEW->addDataRow(num_herbs_carns.first, num_herbs_carns.second);
         ptr++;
         if(ptr == numHerbivore.size()) ptr = 0;
+        removeShortLivedSpecies();
     }
     if (modcounter%1000==0) writeReport();
     if (modcounter>=10000) {
@@ -221,6 +228,7 @@ void World::update()
     vector<Agent*>::iterator iter= agents.begin();
     while (iter != agents.end()) {
         if ((*iter)->health <=0) {
+            (*iter)->removeFromSpecies();
             delete *iter;
             iter= agents.erase(iter);
         } else {
@@ -297,7 +305,6 @@ void World::update()
                 //cout << "adding by crossover" << endl;
         }
     }
-
 
 }
 
@@ -593,6 +600,7 @@ void World::addRandomBots(int num)
         a->makeBasicBrain();
         a->id = idcounter;
         idcounter++;
+        speciateAgent(a);
         agents.push_back(a);
     }
 }
@@ -733,6 +741,7 @@ void World::reproduce(int ai, float MR, float MR2)
         Agent *a2 = agents[ai]->reproduce(MR,MR2, innovations, cur_innov_num);
         a2->id= idcounter;
         idcounter++;
+        speciateAgent(a2);
         agents.push_back(a2);
 
         //TODO fix recording
@@ -748,12 +757,137 @@ void World::mate(Agent *a1, Agent *a2) {
         Agent *offspring = a1->mate(a2, innovations, cur_innov_num);
         a2->id = idcounter;
         idcounter++;
+        speciateAgent(offspring);
         agents.push_back(offspring);
+    }
+}
+
+void World::initSpeciation()
+{
+    std::vector<Agent*>::iterator curAgent;  //For stepping through Population
+    std::vector<Species*>::iterator curspecies; //Steps through species
+    Agent *compAgent= nullptr;  //Agent for comparison
+    Species *newspecies; //For adding a new species
+
+    int counter=0; //Species counter
+
+    //Step through all existing Agents
+    for(curAgent=agents.begin();curAgent!=agents.end();++curAgent) {
+
+        //For each Agent, search for a species it is compatible to
+        curspecies=all_species.begin();
+        if (curspecies==all_species.end()){
+            //Create the first species
+            newspecies=new Species(++counter);
+            all_species.push_back(newspecies);
+            newspecies->addAgent(*curAgent);  //Add the current Agent
+            //(*curAgent)->species=newspecies;  //Point Agent to its species
+        }
+        else {
+            compAgent=(*curspecies)->first();
+            while((compAgent!=nullptr)&&
+                  (curspecies!=all_species.end())) {
+                cout << "compat : " << (*curAgent)->compatibility(compAgent) << endl;
+                if (((*curAgent)->compatibility(compAgent))<conf::MATING_COMPATIBILITY_TRESHOLD) {
+
+                    //Found compatible species, so add this Agent to it
+                    (*curspecies)->addAgent(*curAgent);
+                    //(*curAgent)->species=(*curspecies);  //Point Agent to its species
+                    compAgent=nullptr;  //Note the search is over
+                }
+                else {
+
+                    //Keep searching for a matching species
+                    ++curspecies;
+                    if (curspecies!=all_species.end())
+                        compAgent=(*curspecies)->first();
+                }
+            }
+
+            //If we didn't find a match, create a new species
+            if (compAgent!=nullptr) {
+                newspecies=new Species(++counter);
+                all_species.push_back(newspecies);
+                newspecies->addAgent(*curAgent);  //Add the current Agent
+                //(*curAgent)->species=newspecies;  //Point Agent to its species
+            }
+
+        } //end else
+
+    } //end for
+
+    last_species=counter;  //Keep track of highest species
+}
+
+void World::speciateAgent(Agent *newAgent)
+{
+    std::vector<Species*>::iterator curspecies;
+    Agent *compAgent = nullptr;  //Agent for comparison
+    Species *newSpecies = nullptr;
+
+    //For each Agent, search for a species it is compatible to
+    //curspecies=all_species.begin();
+
+    newAgent->species = nullptr;
+
+    if (all_species.empty()){
+        //Create the first species
+        newSpecies=new Species(++last_species);
+        all_species.push_back(newSpecies);
+        newSpecies->addAgent(newAgent);  //Add the current Agent
+        //(*curAgent)->species=newspecies;  //Point Agent to its species
+    }
+    else {
+        for (curspecies = all_species.begin(); curspecies != all_species.end(); ++curspecies) {
+            if ((*curspecies)->empty())
+                continue;
+            compAgent = (*curspecies)->first();
+            if ((newAgent->compatibility(compAgent)) < conf::MATING_COMPATIBILITY_TRESHOLD) {
+
+                //Found compatible species, so add this Agent to it
+                (*curspecies)->addAgent(newAgent);
+                //(newAgent)->species = (*curspecies);  //Point Agent to its species
+                //compAgent = nullptr;  //Note the search is over
+                break;
+            }
+        }
+
+        //If we didn't find a match, create a new species
+        if (!newAgent->species) {
+            newSpecies = new Species(++last_species);
+            all_species.push_back(newSpecies);
+            newSpecies->addAgent(newAgent);  //Add the current Agent
+            //newAgent->species = newSpecies;  //Point Agent to its species
+        }
+
+    }
+
+    if (newAgent->species == nullptr) {
+        cout << "didn't find species" << endl;
+    }
+    //end else
+
+}
+
+void World::removeShortLivedSpecies()
+{
+    std::vector<Species*>::iterator it = all_species.begin();
+
+    while(it != all_species.end()) {
+        if ((*it)->getNumberOAgents() == 0 && (*it)->getTotalMembersOverTime() < 5) {
+            it = all_species.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
 void World::writeReport()
 {
+    cout << "number of species : " << all_species.size() << endl;
+    for (auto species: all_species) {
+        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOAgents() << endl;
+    }
     //TODO fix reporting
     //save all kinds of nice data stuff
 //     int numherb=0;

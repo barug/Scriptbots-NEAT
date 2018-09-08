@@ -43,19 +43,19 @@
 #include <vtkDataSetAttributes.h>
 #include <vtkGraphMapper.h>
 #include <vtkSpanTreeLayoutStrategy.h>
+#include <vtkContextScene.h>
 
 #include "NEAT/nnode.h"
 
-void VTKDraw()
-{
-    VTKVIEW->draw();
-    glutSwapBuffers();
-}
+#include <vtkChartBox.h>
 
-void VTKReshape(int width, int height)
-{
-    VTKVIEW->reshape(width, height);
-}
+#include <vtkTable.h>
+#include <vtkComputeQuartiles.h>
+#include <vtkStatisticsAlgorithm.h>
+#include <vtkContextActor.h>
+#include <vtkLookupTable.h>
+
+#include "vtkSmartPointer.h"
 
 VTKView::VTKView()
 {

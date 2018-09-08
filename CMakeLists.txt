@@ -48,8 +48,9 @@ set( SB_SRCS
         src/NEAT/network.cpp
         src/NEAT/nnode.cpp
         src/NEAT/trait.cpp
+        src/NEAT/Species.cpp
         src/VTKPlotView.cpp
-        include/VTKPlotView.h)
+        src/VTKSpeciesView.cpp)
 
 add_executable(scriptbots  ${SB_SRCS})
 

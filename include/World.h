@@ -61,6 +61,12 @@ private:
     void reproduce(int ai, float MR, float MR2);
     void mate(Agent *a1, Agent *a2);
 
+    void initSpeciation();
+    void speciateAgent(Agent *agent);
+
+    void removeShortLivedSpecies();
+
+
     std::string saveFilePath;
 
     int modcounter;
@@ -68,7 +74,8 @@ private:
     int idcounter;
     
     std::vector<Agent*> agents;
-
+    std::vector<NEAT::Species*> all_species;
+    int last_species;
     // ******* Member variables used during reproduction *******
     std::vector<NEAT::Innovation*> innovations;  // For holding the genetic innovations of the newest generation
     int cur_node_id;  //Current label number available

@@ -11,6 +11,8 @@
 #include "NEAT/innovation.h"
 
 using namespace std;
+using namespace NEAT;
+
 Agent::Agent()
 {
     pos= Vector2f(randf(0,conf::WIDTH),randf(0,conf::HEIGHT));
@@ -106,15 +108,10 @@ double Agent::compatibility(Agent *other) {
     //cout << "---------------------" << endl;
     bodyCompat += abs(this->herbivore - other->herbivore) * 4;
     //bodyCompat = this->temperature_preference / other->temperature_preference;
-    //cout << "herbivoreCompat : " << bodyCompat << endl;
     bodyCompat += abs(this->smellmod - other->smellmod) / 2;
-    //cout << "smellCompat : " << abs(this->smellmod - other->smellmod) / 2 << endl;
     bodyCompat += abs(this->hearmod- other->hearmod) / 2;
-    //cout << "hearCompat : " << abs(this->hearmod- other->hearmod) / 2 << endl;
     bodyCompat += abs(this->eyesensmod - other->eyesensmod) / 2;
-    //cout << "eyesensCompat : " << abs(this->eyesensmod - other->eyesensmod) / 2 << endl;
     bodyCompat += abs(this->bloodmod - other->bloodmod) / 5;
-    //cout << "bloodCompat : " << abs(this->bloodmod - other->bloodmod) / 2 << endl;
 
     double eyesCompat = 0;
     for(int i=0;i<NUMEYES;i++) {
@@ -122,11 +119,19 @@ double Agent::compatibility(Agent *other) {
         eyesCompat += abs(this->eyedir[i] - other->eyedir[i]) / (2 * M_PI);
     }
     eyesCompat /= 5;
-    //cout << "eyesCompat : " << eyesCompat << endl;
     bodyCompat += eyesCompat;
-    //cout << "bodyCompat : " << bodyCompat << endl;
-    //cout << "brainCompat : " << brainCompat << endl;
+    bodyCompat *= 1;
     compatibility = brainCompat + bodyCompat;
+    if (compatibility > conf::MATING_COMPATIBILITY_TRESHOLD) {
+        /*cout << "herbivoreCompat : " << abs(this->herbivore - other->herbivore) * 4 << endl;
+        cout << "smellCompat : " << abs(this->smellmod - other->smellmod) / 2 << endl;
+        cout << "hearCompat : " << abs(this->hearmod- other->hearmod) / 2 << endl;
+        cout << "eyesensCompat : " << abs(this->eyesensmod - other->eyesensmod) / 2 << endl;
+        cout << "bloodCompat : " << abs(this->bloodmod - other->bloodmod) / 2 << endl;
+        cout << "eyesCompat : " << eyesCompat << endl;
+        cout << "bodyCompat : " << bodyCompat << endl;
+        cout << "brainCompat : " << brainCompat << endl;*/
+    }
     return compatibility;
 }
 
@@ -270,6 +275,11 @@ Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, d
     anew->brain->generateNetwork();
 
     return anew;
+}
+
+void Agent::removeFromSpecies()
+{
+    species->removeAgent(this);
 }
 
 void Agent::printToFile(std::ofstream &outFile)

@@ -35,11 +35,11 @@ void VTKPlotView::addDataRow(int numHerb, int numCarn)
     row->SetArray(buf, 3, 1);
     _data->InsertNextRow(row.GetPointer());
 
-    std::cout << "nRows : " << _data->GetNumberOfRows() << std::endl;
+    /*std::cout << "nRows : " << _data->GetNumberOfRows() << std::endl;
     for (int i = 0; i < _data->GetNumberOfRows(); ++i) {
         vtkVariantArray *arr = _data->GetRow(i);
         std::cout << arr->GetPointer(0)->ToInt()<< "  " << arr->GetPointer(1)->ToInt() << std::endl;
-    }
+    }*/
     lineHerb->SetInputData(_data.GetPointer(), 0, 1);
     lineHerb->SetColor(0, 255, 0 , 255);
     lineHerb->SetWidth(1.0);
