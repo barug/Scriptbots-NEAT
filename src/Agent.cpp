@@ -51,7 +51,7 @@ Agent::Agent()
     bloodmod= randf(1, 3);
     
     //MUTRATE1= randf(0.001, 0.005);
-    MUTRATE1= randf(0.01, 0.1);
+    MUTRATE1= randf(0.2, 0.4);
     MUTRATE2= randf(0.03, 0.07);
     //cout << "mutrate1:" << MUTRATE1 << endl;
     //cout << "mutrate2:" << MUTRATE2 << endl;
@@ -204,7 +204,7 @@ Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovati
 
 Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, double &cur_innov_num)
 {
-    bool BDEBUG = true;
+    bool BDEBUG = false;
     if(BDEBUG) printf("New birth---------------\n");
 
     //this could be made faster by returning a pointer

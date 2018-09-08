@@ -149,6 +149,10 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         VTKVIEW->move(5, 0);
     } else if (key=='d') { //right
         VTKVIEW->move(-5, 0);
+    } else if (key=='t') {
+        VTKSPECIESVIEW->startInteraction();
+    } else if (key=='y') {
+        VTKPLOTVIEW->startInteraction();
     }
     else if (key=='p') {
         //pause

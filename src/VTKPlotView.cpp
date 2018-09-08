@@ -59,3 +59,8 @@ void VTKPlotView::addDataRow(int numHerb, int numCarn)
     _view->GetScene()->AddItem(chart.GetPointer());
     _view->Render();
 }
+
+void VTKPlotView::startInteraction()
+{
+    _view->GetInteractor()->Start();
+}

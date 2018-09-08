@@ -9,8 +9,8 @@
 
 namespace conf {
     
-    const int WIDTH = 6000;  //width and height of simulation
-    const int HEIGHT = 3000;
+    const int WIDTH = 8000;  //width and height of simulation
+    const int HEIGHT = 4000;
     const int WWIDTH = 1600;  //window width and height
     const int WHEIGHT = 900;
     
@@ -26,7 +26,7 @@ namespace conf {
     const float REPRATEH=7; //reproduction rate for herbivors
     const float REPRATEC=7; //reproduction rate for carnivors
     const float MATING_RADIUS=100;
-    const double MATING_COMPATIBILITY_TRESHOLD=3.0;
+    const double MATING_COMPATIBILITY_TRESHOLD=4.0;
     const int MATING_BABIES=3;
 
     const float DIST= 150;		//how far can the eyes see on each bot?

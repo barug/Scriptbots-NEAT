@@ -11,7 +11,8 @@ using namespace NEAT;
 Species::Species(int i) :
     _id(i),
     _popMaxRecord(0),
-    _totalMembersOverTime(0)
+    _totalMembersOverTime(0),
+    _drawn(false)
 {
 
 }
@@ -46,7 +47,7 @@ Agent *Species::first()
     return *(_agents.begin());
 }
 
-int Species::getNumberOAgents()
+int Species::getNumberOfAgents()
 {
     _agents.size();
 }
@@ -64,4 +65,14 @@ int Species::getPopMaxRecord()
 int Species::getTotalMembersOverTime()
 {
     return _totalMembersOverTime;
+}
+
+void Species::setDrawn(bool drawn)
+{
+    _drawn = drawn;
+}
+
+bool Species::isDrawn()
+{
+    return _drawn;
 }

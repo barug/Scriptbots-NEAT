@@ -2,14 +2,17 @@
 #define WORLD_H
 
 #include "NEAT/innovation.h"
+#include "NEAT/Species.h"
 #include "View.h"
 #include "Agent.h"
 #include "settings.h"
 #include "VTKView.h"
 #include "VTKPlotView.h"
+#include "VTKSpeciesView.h"
+
 #include <vector>
-class World
-{
+
+class World {
 public:
     World();
     World(std::string path);
@@ -50,7 +53,7 @@ public:
     std::vector<int> numCarnivore;
     std::vector<int> numHerbivore; 
     int ptr;
-    
+
 private:
     void setInputs();
     void processOutputs();

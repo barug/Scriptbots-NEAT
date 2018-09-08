@@ -18,6 +18,7 @@ namespace NEAT {
         std::list<Agent*> _agents;
         int _popMaxRecord;
         int _totalMembersOverTime;
+        bool _drawn;
 
     public:
 
@@ -27,10 +28,12 @@ namespace NEAT {
         void addAgent(Agent *agent);
         void removeAgent(Agent *agent);
         Agent *first();
-        int getNumberOAgents();
+        int getNumberOfAgents();
         int empty();
         int getPopMaxRecord();
         int getTotalMembersOverTime();
+        void setDrawn(bool drawn);
+        bool isDrawn();
     };
 }
 

@@ -23,6 +23,7 @@
 #include <vtkGraphLayoutView.h>
 #include <vtkViewTheme.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkInteractorStyleRubberBand2D.h>
 
 #include <vtkFast2DLayoutStrategy.h>
 #include <vtkSimple2DLayoutStrategy.h>

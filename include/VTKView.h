@@ -13,7 +13,8 @@
 #include "Agent.h"
 #include <vtkAttributeClustering2DLayoutStrategy.h>
 #include <vtkActor.h>
-
+#include <vtkContextActor.h>
+#include <vtkContextView.h>
 class VTKView;
 
 extern VTKView *VTKVIEW;

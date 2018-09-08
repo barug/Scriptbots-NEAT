@@ -32,9 +32,11 @@ class VTKPlotView {
     vtkNew<vtkContextView> _view;
     vtkNew<vtkTable> _data;
 
+
 public:
     VTKPlotView();
     void addDataRow(int numHerb, int numCarn);
+    void startInteraction();
 };
 
 

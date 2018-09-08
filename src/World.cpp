@@ -25,7 +25,7 @@ World::World() :
     /*initSpeciation();
     std::cout << "n Species : " << all_species.size() << endl;
     for (auto species: all_species) {
-        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOAgents() << endl;
+        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOfAgents() << endl;
     }
     *///inititalize food layer
 
@@ -125,9 +125,10 @@ void World::update()
         VTKPLOTVIEW->addDataRow(num_herbs_carns.first, num_herbs_carns.second);
         ptr++;
         if(ptr == numHerbivore.size()) ptr = 0;
-        removeShortLivedSpecies();
+        //removeShortLivedSpecies();
+        VTKSPECIESVIEW->addSpeciesData(all_species);
     }
-    if (modcounter%1000==0) writeReport();
+    //if (modcounter%1000==0) writeReport();
     if (modcounter>=10000) {
         modcounter=0;
         current_epoch++;
@@ -874,7 +875,7 @@ void World::removeShortLivedSpecies()
     std::vector<Species*>::iterator it = all_species.begin();
 
     while(it != all_species.end()) {
-        if ((*it)->getNumberOAgents() == 0 && (*it)->getTotalMembersOverTime() < 5) {
+        if ((*it)->getNumberOfAgents() == 0 && !(*it)->isDrawn()) {
             it = all_species.erase(it);
         } else {
             ++it;
@@ -886,7 +887,7 @@ void World::writeReport()
 {
     cout << "number of species : " << all_species.size() << endl;
     for (auto species: all_species) {
-        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOAgents() << endl;
+        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOfAgents() << endl;
     }
     //TODO fix reporting
     //save all kinds of nice data stuff
