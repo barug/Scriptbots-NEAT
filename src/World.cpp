@@ -14,12 +14,14 @@ World::World() :
     saveFilePath("save"),
     modcounter(0),
     current_epoch(0),
-    idcounter(0),
+    idcounter(1),
     FW(conf::WIDTH/conf::CZ),
     FH(conf::HEIGHT/conf::CZ),
     CLOSED(false),
     cur_node_id(0),
-    cur_innov_num(0)
+    cur_innov_num(0),
+    periodicSave(0),
+    last_species(1)
     {
     addRandomBots(conf::NUMBOTS);
     /*initSpeciation();
@@ -38,17 +40,20 @@ World::World() :
     numCarnivore.resize(200, 0);
     numHerbivore.resize(200, 0);
     ptr=0;
+
+    VTKSPECIESVIEW = new VTKSpeciesView();
 }
 
 World::World(std::string path) :
-    saveFilePath("save")
+    saveFilePath("save"),
+    periodicSave(0)
     {
     std::ifstream inFile(path, std::ifstream::in);
     std::string wordBuff;
 
     inFile >> wordBuff;
     if (wordBuff != "worldBegin")
-        throw std::runtime_error("bad format");
+        throw std::runtime_error("bad format : worldBegin");
 
     numCarnivore.resize(200, 0);
     numHerbivore.resize(200, 0);
@@ -68,7 +73,9 @@ World::World(std::string path) :
 
     int numInnovations;
     inFile >> numInnovations;
+    cout << "numInnovations : " << numInnovations << endl;
     for (int i = 0; i < numInnovations; i++) {
+        cout << i << endl;
         innovations.push_back(new NEAT::Innovation(inFile));
     }
 
@@ -83,7 +90,7 @@ World::World(std::string path) :
 
     inFile >> wordBuff;
     if (wordBuff != "foodMapBegin")
-        throw std::runtime_error("bad format");
+        throw std::runtime_error("bad format : foodMapBegin");
 
     for (int x=0;x<FW;x++) {
         for (int y=0;y<FH;y++) {
@@ -93,12 +100,30 @@ World::World(std::string path) :
 
     inFile >> wordBuff;
     if (wordBuff != "foodMapEnd")
-        throw std::runtime_error("bad format");
+        throw std::runtime_error("bad format : foodMapEnd");
     inFile >> CLOSED;
 
     inFile >> wordBuff;
+    if (wordBuff != "allSpeciesBegin")
+        throw std::runtime_error("allSpeciesBegin");
+
+    inFile >> last_species;
+    int nbrOfSpecies;
+    inFile >> nbrOfSpecies;
+
+    for (int i=0; i < nbrOfSpecies; ++i) {
+        all_species.push_back(new Species(inFile, agents));
+    }
+
+    inFile >> wordBuff;
+    if (wordBuff != "allSpeciesEnd")
+        throw std::runtime_error("allSpeciesEnd");
+
+    VTKSPECIESVIEW = new VTKSpeciesView(inFile);
+
+        inFile >> wordBuff;
     if (wordBuff != "worldEnd")
-        throw std::runtime_error("bad format");
+        throw std::runtime_error("bad format : worldEnd");
 
     inFile.close();
 
@@ -125,13 +150,18 @@ void World::update()
         VTKPLOTVIEW->addDataRow(num_herbs_carns.first, num_herbs_carns.second);
         ptr++;
         if(ptr == numHerbivore.size()) ptr = 0;
-        //removeShortLivedSpecies();
+        removeShortLivedSpecies();
         VTKSPECIESVIEW->addSpeciesData(all_species);
     }
     //if (modcounter%1000==0) writeReport();
     if (modcounter>=10000) {
         modcounter=0;
         current_epoch++;
+        cout << "periodicsave : " << periodicSave << endl;
+        if (periodicSave && (current_epoch % periodicSave == 0)) {
+            cout << "path : " << saveFilePath + std::to_string(current_epoch) << endl;
+            printToFile(saveFilePath + std::to_string(current_epoch));
+        }
     }
     if (modcounter%conf::FOODADDFREQ==0) {
         fx=randi(0,FW);
@@ -230,8 +260,9 @@ void World::update()
     while (iter != agents.end()) {
         if ((*iter)->health <=0) {
             (*iter)->removeFromSpecies();
-            delete *iter;
+            Agent *a = *iter;
             iter= agents.erase(iter);
+            delete a;
         } else {
             ++iter;
         }
@@ -544,8 +575,9 @@ void World::processOutputs()
 
             //NOTE: herbivore cant attack. TODO: hmmmmm
             //fot now ok: I want herbivores to run away from carnivores, not kill them back
-            if(agents[i]->herbivore>0.8 || agents[i]->spikeLength<0.2 || agents[i]->w1<0.5 || agents[i]->w2<0.5) continue; 
-            
+            if (agents[i]->spikeLength<0.2 || agents[i]->w1<0.5 || agents[i]->w2<0.5) continue;
+            //if(agents[i]->herbivore>0.8 || agents[i]->spikeLength<0.2 || agents[i]->w1<0.5 || agents[i]->w2<0.5) continue;
+
             for (int j=0;j<agents.size();j++) {
                 
                 if (i==j) continue;
@@ -561,7 +593,7 @@ void World::processOutputs()
                         float mult=1;
                         if (agents[i]->boost) mult= conf::BOOSTSIZEMULT;
                         float DMG= conf::SPIKEMULT*agents[i]->spikeLength*max(fabs(agents[i]->w1),fabs(agents[i]->w2))*conf::BOOSTSIZEMULT;
-
+                        DMG *= 0.5 + (1-agents[i]->herbivore);
                         agents[j]->health-= DMG;
 
                         if (agents[i]->health>2) agents[i]->health=2; //cap health at 2
@@ -632,11 +664,13 @@ void World::positionOfInterest(int type, float &xi, float &yi) {
     
 }
 
-void World::printToFile()
+
+
+void World::printToFile(std::string path)
 {
     std::cout << "saving" << std::endl;
     std::ofstream outFile;
-    outFile.open(saveFilePath, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+    outFile.open(path, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
 
     outFile << "worldBegin" << std::endl;
     outFile << modcounter << " ";
@@ -671,14 +705,35 @@ void World::printToFile()
 
     outFile << std::endl << "foodMapEnd" << std::endl;
     outFile << CLOSED << std::endl;
+
+    outFile << "allSpeciesBegin" << std::endl;
+    outFile << last_species << std::endl;
+    outFile << all_species.size() << std::endl;
+    for (auto species: all_species) {
+        species->saveToFile(outFile);
+    }
+    outFile << "allSpeciesEnd" << std::endl;
+
+    VTKSPECIESVIEW->saveToFile(outFile);
+
     outFile << "worldEnd" << std::endl;
     outFile.close();
     std::cout << "finished saving" << std::endl;
 }
 
+void World::printToFile()
+{
+    printToFile(saveFilePath);
+}
+
 void World::setSaveFilePath(std::string path)
 {
     saveFilePath = path;
+}
+
+void World::setPeriodicSave(int period)
+{
+    periodicSave = period;
 }
 
 void World::addCarnivore()
@@ -756,7 +811,7 @@ void World::reproduce(int ai, float MR, float MR2)
 void World::mate(Agent *a1, Agent *a2) {
     for (int i=0; i<conf::MATING_BABIES; ++i) {
         Agent *offspring = a1->mate(a2, innovations, cur_innov_num);
-        a2->id = idcounter;
+        offspring->id = idcounter;
         idcounter++;
         speciateAgent(offspring);
         agents.push_back(offspring);

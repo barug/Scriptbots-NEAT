@@ -14,6 +14,7 @@
    limitations under the License.
 */
 #include "NEAT/innovation.h"
+#include <iostream>
 
 using namespace NEAT;
 
@@ -44,6 +45,7 @@ Innovation::Innovation(int nin,int nout,double num1,double w,int t) {
 	innovation_num2=0;
 	newnode_id=0;
 	recur_flag=false;
+	old_innov_num=0;
 }
 
 Innovation::Innovation(int nin,int nout,double num1,double w,int t,bool recur) {
@@ -58,6 +60,7 @@ Innovation::Innovation(int nin,int nout,double num1,double w,int t,bool recur) {
 	innovation_num2=0;
 	newnode_id=0;
 	recur_flag=recur;
+    old_innov_num=0;
 }
 
 Innovation::Innovation(std::ifstream &inFile)
@@ -66,7 +69,7 @@ Innovation::Innovation(std::ifstream &inFile)
 
 	inFile >> wordBuff;
 	if (wordBuff != "innovationBegin")
-		throw std::runtime_error("bad format");
+		throw std::runtime_error("bad format : innovationBegin");
 
 	int intBuff;
 
@@ -89,10 +92,27 @@ Innovation::Innovation(std::ifstream &inFile)
 
 	inFile >> recur_flag;
 
+	std::cout << innovation_type << " ";  //Either NEWNODE or NEWLINK
+
+	std::cout << node_in_id << " ";     //Two nodes specify where the innovation took place
+	std::cout << node_out_id << " ";
+
+	std::cout << innovation_num1 << " ";  //The number assigned to the innovation
+	std::cout << innovation_num2 << " ";  // If this is a new node innovation, then there are 2 innovations (links) added for the new node
+
+	std::cout << new_weight << " ";   //  If a link is added, this is its weight
+	std::cout << new_traitnum << " "; // If a link is added, this is its connected trait
+
+	std::cout << newnode_id << " ";  // If a new node was created, this is its node_id
+
+	std::cout << old_innov_num << " ";  // If a new node was created, this is the innovnum of the gene's link it is being stuck inside
+
+	std::cout << recur_flag << " ";
+
 
 	inFile >> wordBuff;
 	if (wordBuff != "innovationEnd")
-		throw std::runtime_error("bad format");
+		throw std::runtime_error("bad format : innovationEnd");
 }
 
 void Innovation::printToFile(std::ofstream &outfile)

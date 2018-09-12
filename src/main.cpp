@@ -18,7 +18,7 @@
 GLView* GLVIEW = new GLView(0);
 VTKView* VTKVIEW = new VTKView();
 VTKPlotView * VTKPLOTVIEW = new VTKPlotView();
-VTKSpeciesView *VTKSPECIESVIEW = new VTKSpeciesView();
+VTKSpeciesView *VTKSPECIESVIEW;
 
 int main(int argc, char **argv) {
     srand(time(0));
@@ -31,15 +31,20 @@ int main(int argc, char **argv) {
     World* world = nullptr;
 
     int opt;
-    while ((opt = getopt(argc, argv, "l:s:")) != -1) {
+    while ((opt = getopt(argc, argv, "l:s:p:")) != -1) {
         switch (opt) {
             case 'l':
                 world = new World(optarg);
                 break;
             case 's':
-                world = new World();
+                if (!world)
+                    world = new World();
                 world->setSaveFilePath(optarg);
                 break;
+            case 'p':
+                if (!world)
+                    world = new World();
+                world->setPeriodicSave(std::stoi(optarg));
             default: /* '?' */
                 break;
         }

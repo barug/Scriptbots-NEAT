@@ -17,6 +17,49 @@ Species::Species(int i) :
 
 }
 
+Species::Species(std::ifstream &inFile, std::vector<Agent*> all_agents)
+{
+    std::string wordBuff;
+
+
+    inFile >> wordBuff;
+    if (wordBuff != "speciesBegin")
+        throw std::runtime_error("bad format : speciesBegin");
+
+    inFile >> _id;
+    inFile >> _popMaxRecord;
+    inFile >> _totalMembersOverTime;
+    inFile >> _drawn;
+
+    int numberOfAgents;
+    int agentId;
+    inFile >> numberOfAgents;
+
+    std::cout << "Species id : " << _id << " popMaxRecord : " << _popMaxRecord << " totalMembers : " << _totalMembersOverTime << " drawn : " << _drawn << " numberOfAgents : " << numberOfAgents << std::endl;
+
+    for (int i = 0; i < numberOfAgents; ++i) {
+        inFile >> agentId;
+        std::vector<Agent*>::iterator it =
+                std::find_if(all_agents.begin(), all_agents.end(), [agentId](Agent *agent) {
+            return agent->id == agentId;
+        });
+        if (it == all_agents.end()) {
+            throw std::runtime_error("load Species : bad agent id " + std::to_string(agentId));
+        }
+        _agents.push_back(*it);
+        (*it)->species = this;
+    }
+
+    if (_agents.size() != numberOfAgents) {
+        throw std::runtime_error("load Species : wrong number of agents " + std::to_string(_agents.size()));
+    }
+
+    inFile >> wordBuff;
+    if (wordBuff != "speciesEnd")
+        throw std::runtime_error("bad format : speciesEnd");
+
+}
+
 int Species::getId()
 {
     return _id;
@@ -35,10 +78,8 @@ void Species::addAgent(Agent *agent)
 void Species::removeAgent(Agent *agent)
 {
     try {
-        //cout << "species : " << _id << " size pre erase : " << _agents.size() << std::endl;
         auto it = std::find(_agents.begin(), _agents.end(), agent);
         _agents.erase(it);
-        //cout << "size post erase : " << _agents.size() << endl;
     } catch (std::exception &e) {}
 }
 
@@ -57,7 +98,7 @@ int Species::empty()
     return _agents.empty();
 }
 
-int Species::getPopMaxRecord()
+unsigned long Species::getPopMaxRecord()
 {
     return _popMaxRecord;
 }
@@ -76,3 +117,21 @@ bool Species::isDrawn()
 {
     return _drawn;
 }
+
+void Species::saveToFile(std::ofstream &outFile)
+{
+    outFile << "speciesBegin" << std::endl;
+
+    outFile << _id << " ";
+    outFile << _popMaxRecord << " ";
+    outFile << _totalMembersOverTime << " ";
+    outFile << _drawn << " ";
+    outFile << _agents.size() << std::endl;
+
+    for (auto agent: _agents) {
+        outFile << agent->id << " ";
+    }
+
+    outFile << std::endl << "speciesEnd" << std::endl;
+}
+

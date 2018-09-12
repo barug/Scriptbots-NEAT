@@ -357,7 +357,7 @@ Agent::Agent(std::ifstream &inFile)
 
     inFile >> wordBuff;
     if (wordBuff != "AgentBegin")
-        throw std::runtime_error("bad format");
+        throw std::runtime_error("bad format : AgentBegin");
 
     float x, y;
     inFile >> x;

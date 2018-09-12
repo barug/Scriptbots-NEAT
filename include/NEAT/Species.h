@@ -16,13 +16,14 @@ namespace NEAT {
 
         int _id;
         std::list<Agent*> _agents;
-        int _popMaxRecord;
+        unsigned long _popMaxRecord;
         int _totalMembersOverTime;
         bool _drawn;
 
     public:
 
         Species(int i);
+        Species(std::ifstream &inFile, std::vector<Agent*> all_agents);
 
         int getId();
         void addAgent(Agent *agent);
@@ -30,10 +31,11 @@ namespace NEAT {
         Agent *first();
         int getNumberOfAgents();
         int empty();
-        int getPopMaxRecord();
+        unsigned long getPopMaxRecord();
         int getTotalMembersOverTime();
         void setDrawn(bool drawn);
         bool isDrawn();
+        void saveToFile(std::ofstream &outFile);
     };
 }
 

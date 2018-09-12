@@ -21,8 +21,12 @@ class VTKSpeciesView {
 
 public:
     VTKSpeciesView();
+    VTKSpeciesView(std::ifstream &inFile);
+
     void addSpeciesData(std::vector<NEAT::Species*> species);
     void startInteraction();
+    void renderData();
+    void saveToFile(std::ofstream &outFile);
 };
 
 extern VTKSpeciesView *VTKSPECIESVIEW;

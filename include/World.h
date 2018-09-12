@@ -47,8 +47,10 @@ public:
     
     void positionOfInterest(int type, float &xi, float &yi);
 
+    void printToFile(std::string path);
     void printToFile();
     void setSaveFilePath(std::string path);
+    void setPeriodicSave(int period);
     
     std::vector<int> numCarnivore;
     std::vector<int> numHerbivore; 
@@ -63,13 +65,15 @@ private:
     
     void reproduce(int ai, float MR, float MR2);
     void mate(Agent *a1, Agent *a2);
-    
+
     void speciateAgent(Agent *agent);
 
     void removeShortLivedSpecies();
 
 
     std::string saveFilePath;
+    int periodicSave;
+
 
     int modcounter;
     int current_epoch;
