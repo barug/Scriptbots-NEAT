@@ -54,6 +54,8 @@ World::World(std::string path) :
     std::ifstream inFile(path, std::ifstream::in);
     std::string wordBuff;
 
+    conf::load_from_save(inFile);
+
     inFile >> wordBuff;
     if (wordBuff != "worldBegin")
         throw std::runtime_error("bad format : worldBegin");
@@ -98,7 +100,7 @@ World::World(std::string path) :
 
     food.resize(FW);
     for (int x=0;x<FW;x++) {
-        food.resize(FH);
+        food[x].resize(FH);
         for (int y=0;y<FH;y++) {
             inFile >> food[x][y];
         }
@@ -678,6 +680,8 @@ void World::printToFile(std::string path)
     std::ofstream outFile;
     outFile.open(path, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
 
+    conf::save_to_file(outFile);
+
     outFile << "worldBegin" << std::endl;
     outFile << modcounter << " ";
     outFile << current_epoch << " ";
@@ -700,7 +704,7 @@ void World::printToFile(std::string path)
     outFile << FW << " ";
     outFile << FH << " ";
     outFile << fx << " ";
-    outFile << fy << " ";
+    outFile << fy << std::endl;
 
     outFile << "foodMapBegin" << std::endl;
     for (int x=0;x<FW;x++) {

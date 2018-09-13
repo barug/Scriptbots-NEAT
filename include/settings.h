@@ -7,6 +7,8 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include <string>
+
 class conf {
 public:
      static int WIDTH;  //width and height of simulation
@@ -49,6 +51,9 @@ public:
 
 
      static void initialize();
+     static void load_conf(std::string path);
+     static void save_to_file(std::ofstream &outFile);
+     static void load_from_save(std::ifstream &inFile);
 };
 
 #endif
