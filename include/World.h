@@ -92,7 +92,8 @@ private:
     int FH;
     int fx;
     int fy;
-    float food[conf::WIDTH/conf::CZ][conf::HEIGHT/conf::CZ];
+    //float food[conf::WIDTH/conf::CZ][conf::HEIGHT/conf::CZ];
+    std::vector<std::vector<float>> food;
     bool CLOSED; //if environment is closed, then no random bots are added per time interval
 };
 

@@ -31,7 +31,10 @@ World::World() :
     }
     *///inititalize food layer
 
+    food.resize(FW);
+
     for (int x=0;x<FW;x++) {
+        food[x].resize(FH);
         for (int y=0;y<FH;y++) {
             food[x][y]= 0;
         }
@@ -92,7 +95,10 @@ World::World(std::string path) :
     if (wordBuff != "foodMapBegin")
         throw std::runtime_error("bad format : foodMapBegin");
 
+
+    food.resize(FW);
     for (int x=0;x<FW;x++) {
+        food.resize(FH);
         for (int y=0;y<FH;y++) {
             inFile >> food[x][y];
         }

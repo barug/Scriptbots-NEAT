@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <sstream>
 
 #include "GLView.h"
 #include "VTKView.h"
@@ -20,18 +21,123 @@ VTKView* VTKVIEW = new VTKView();
 VTKPlotView * VTKPLOTVIEW = new VTKPlotView();
 VTKSpeciesView *VTKSPECIESVIEW;
 
+
+void load_conf(std::string path)
+{
+    char curline[4096];
+    std::string wordBuff;
+    std::ifstream inFile(path, std::ifstream::in);
+
+    inFile.eof();
+    //for (ifstream.getline(curline, 4096 && (inFile.rdstate & std::ifstream::eofbit)))
+    while (!inFile.eof()) {
+        inFile.getline(curline, 4096);
+        std::stringstream lineStream(curline);
+
+        lineStream >> wordBuff;
+        if (wordBuff == "WIDTH") {
+            lineStream >> conf::WIDTH;
+        }
+        if (wordBuff == "HEIGHT") {
+            lineStream >> conf::HEIGHT;
+        }
+        if (wordBuff == "WWIDTH") {
+            lineStream >> conf::WWIDTH;
+        }
+        if (wordBuff == "WHEIGHT") {
+            lineStream >> conf::WHEIGHT;
+        }
+        if (wordBuff == "CZ") {
+            lineStream >> conf::CZ;
+        }
+        if (wordBuff == "NUMBOTS") {
+            lineStream >> conf::NUMBOTS;
+        }
+        if (wordBuff == "BOTRADIUS") {
+            lineStream >> conf::BOTRADIUS;
+        }
+        if (wordBuff == "BOTSPEED") {
+            lineStream >> conf::BOTSPEED;
+        }
+        if (wordBuff == "SPIKESPEED") {
+            lineStream >> conf::SPIKESPEED;
+        }
+        if (wordBuff == "SPIKEMULT") {
+            lineStream >> conf::SPIKEMULT;
+        }
+        if (wordBuff == "BABIES") {
+            lineStream >> conf::BABIES;
+        }
+        if (wordBuff == "BOOSTSIZEMULT") {
+            lineStream >> conf::WWIDTH;
+        }
+        if (wordBuff == "REPRATEH") {
+            lineStream >> conf::REPRATEH;
+        }
+        if (wordBuff == "REPRATEC") {
+            lineStream >> conf::REPRATEC;
+        }
+        if (wordBuff == "MATING_RADIUS") {
+            lineStream >> conf::MATING_RADIUS;
+        }
+        if (wordBuff == "MATING_COMPATIBILITY_TRESHOLD") {
+            lineStream >> conf::MATING_COMPATIBILITY_TRESHOLD;
+        }
+        if (wordBuff == "MATING_BABIES") {
+            lineStream >> conf::MATING_BABIES;
+        }
+        if (wordBuff == "DIST") {
+            lineStream >> conf::DIST;
+        }
+        if (wordBuff == "METAMUTRATE1") {
+            lineStream >> conf::METAMUTRATE1;
+        }
+        if (wordBuff == "METAMUTRATE2") {
+            lineStream >> conf::METAMUTRATE2;
+        }
+        if (wordBuff == "FOODINTAKE") {
+            lineStream >> conf::FOODINTAKE;
+        }
+        if (wordBuff == "FOODWASTE") {
+            lineStream >> conf::FOODWASTE;
+        }
+        if (wordBuff == "FOODMAX") {
+            lineStream >> conf::FOODMAX;
+        }
+        if (wordBuff == "FOODADDFREQ") {
+            lineStream >> conf::FOODADDFREQ;
+        }
+        if (wordBuff == "FOODTRANSFER") {
+            lineStream >> conf::FOODTRANSFER;
+        }
+        if (wordBuff == "FOOD_SHARING_DISTANCE") {
+            lineStream >> conf::FOOD_SHARING_DISTANCE;
+        }
+        if (wordBuff == "TEMPERATURE_DISCOMFORT") {
+            lineStream >> conf::TEMPERATURE_DISCOMFORT;
+        }
+        if (wordBuff == "FOOD_DISTRIBUTION_RADIUS") {
+            lineStream >> conf::FOOD_DISTRIBUTION_RADIUS;
+        }
+        if (wordBuff == "REPMULT") {
+            lineStream >> conf::REPMULT;
+        }
+    }
+    inFile.close();
+}
+
 int main(int argc, char **argv) {
+    conf::initialize();
     srand(time(0));
-    if (conf::WIDTH%conf::CZ!=0 || conf::HEIGHT%conf::CZ!=0) printf("CAREFUL! The cell size variable conf::CZ should divide evenly into  both conf::WIDTH and conf::HEIGHT! It doesn't right now!");
-    
     
     printf("p= pause, d= toggle drawing (for faster computation), f= draw food too, += faster, -= slower\n");
     printf("Pan around by holding down right mouse button, and zoom by holding down middle button.\n");
 
     World* world = nullptr;
 
+
     int opt;
-    while ((opt = getopt(argc, argv, "l:s:p:")) != -1) {
+    while ((opt = getopt(argc, argv, "l:s:p:c:")) != -1) {
         switch (opt) {
             case 'l':
                 world = new World(optarg);
@@ -45,6 +151,14 @@ int main(int argc, char **argv) {
                 if (!world)
                     world = new World();
                 world->setPeriodicSave(std::stoi(optarg));
+                break;
+            case 'c':
+                if (world) {
+                    cout << "c option should be first" << endl;
+                    return 0;
+                }
+                load_conf(optarg);
+                break;
             default: /* '?' */
                 break;
         }

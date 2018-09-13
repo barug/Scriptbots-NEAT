@@ -7,45 +7,48 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-namespace conf {
-    
-    const int WIDTH = 8000;  //width and height of simulation
-    const int HEIGHT = 4000;
-    const int WWIDTH = 1600;  //window width and height
-    const int WHEIGHT = 900;
-    
-    const int CZ = 50; //cell size in pixels, for food squares. Should divide well into Width Height
-    
-    const int NUMBOTS=70; //initially, and minimally
-    const float BOTRADIUS=10; //for drawing
-    const float BOTSPEED= 0.3;
-    const float SPIKESPEED= 0.005; //how quickly can attack spike go up?
-    const float SPIKEMULT= 1; //essentially the strength of every spike impact
-    const int BABIES=2; //number of babies per agent when they reproduce
-    const float BOOSTSIZEMULT=2; //how much boost do agents get? when boost neuron is on
-    const float REPRATEH=7; //reproduction rate for herbivors
-    const float REPRATEC=7; //reproduction rate for carnivors
-    const float MATING_RADIUS=100;
-    const double MATING_COMPATIBILITY_TRESHOLD=4.0;
-    const int MATING_BABIES=3;
+class conf {
+public:
+     static int WIDTH;  //width and height of simulation
+     static int HEIGHT;
+     static int WWIDTH;  //window width and height
+     static int WHEIGHT;
 
-    const float DIST= 150;		//how far can the eyes see on each bot?
-    const float METAMUTRATE1= 0.002; //what is the change in MUTRATE1 and 2 on reproduction? lol
-    const float METAMUTRATE2= 0.05;
+     static int CZ; //cell size in pixels, for food squares. Should divide well into Width Height
 
-    const float FOODINTAKE= 0.002; //how much does every agent consume?
-    const float FOODWASTE= 0.001; //how much food disapears if agent eats?
-    const float FOODMAX= 0.5; //how much food per cell can there be at max?
-    const int FOODADDFREQ= 15; //how often does random square get to full food?
+     static int NUMBOTS; //initially, and minimally
+     static float BOTRADIUS; //for drawing
+     static float BOTSPEED;
+     static float SPIKESPEED; //how quickly can attack spike go up?
+     static float SPIKEMULT; //essentially the strength of every spike impact
+     static int BABIES; //number of babies per agent when they reproduce
+     static float BOOSTSIZEMULT; //how much boost do agents get? when boost neuron is on
+     static float REPRATEH; //reproduction rate for herbivors
+     static float REPRATEC; //reproduction rate for carnivors
+     static float MATING_RADIUS;
+     static double MATING_COMPATIBILITY_TRESHOLD;
+     static int MATING_BABIES;
 
-    const float FOODTRANSFER= 0.001; //how much is transfered between two agents trading food? per iteration
-    const float FOOD_SHARING_DISTANCE= 50; //how far away is food shared between bots?
+     static float DIST;		//how far can the eyes see on each bot?
+     static float METAMUTRATE1; //what is the change in MUTRATE1 and 2 on reproduction? lol
+     static float METAMUTRATE2;
+
+     static float FOODINTAKE; //how much does every agent consume?
+     static float FOODWASTE; //how much food disapears if agent eats?
+     static float FOODMAX; //how much food per cell can there be at max?
+     static int FOODADDFREQ; //how often does random square get to full food?
+
+     static float FOODTRANSFER; //how much is transfered between two agents trading food? per iteration
+     static float FOOD_SHARING_DISTANCE; //how far away is food shared between bots?
     
-    const float TEMPERATURE_DISCOMFORT = 0; //how quickly does health drain in nonpreferred temperatures (0= disabled. 0.005 is decent value)
+     static float TEMPERATURE_DISCOMFORT; //how quickly does health drain in nonpreferred temperatures (0= disabled. 0.005 is decent value)
 
-    const float FOOD_DISTRIBUTION_RADIUS=100; //when bot is killed, how far is its body distributed?
+     static float FOOD_DISTRIBUTION_RADIUS; //when bot is killed, how far is its body distributed?
     
-    const float REPMULT = 5; //when a body of dead animal is distributed, how much of it goes toward increasing birth counter for surrounding bots?
-}
+     static float REPMULT; //when a body of dead animal is distributed, how much of it goes toward increasing birth counter for surrounding bots?
+
+
+     static void initialize();
+};
 
 #endif

@@ -50,7 +50,8 @@ set( SB_SRCS
         src/NEAT/trait.cpp
         src/NEAT/Species.cpp
         src/VTKPlotView.cpp
-        src/VTKSpeciesView.cpp)
+        src/VTKSpeciesView.cpp
+        src/settings.cpp)
 
 add_executable(scriptbots  ${SB_SRCS})
 
