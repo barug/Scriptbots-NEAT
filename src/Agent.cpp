@@ -51,8 +51,8 @@ Agent::Agent()
     bloodmod= randf(1, 3);
     
     //MUTRATE1= randf(0.001, 0.005);
-    MUTRATE1= randf(0.2, 0.4);
-    MUTRATE2= randf(0.03, 0.07);
+    MUTRATE1= randf(conf::MUTRATE1_INIT_LOW, conf::MUTRATE1_INIT_HIGH);
+    MUTRATE2= randf(conf::MUTRATE2_INIT_LOW, conf::MUTRATE2_INIT_HIGH);
     //cout << "mutrate1:" << MUTRATE1 << endl;
     //cout << "mutrate2:" << MUTRATE2 << endl;
 

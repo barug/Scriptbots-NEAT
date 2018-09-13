@@ -32,6 +32,10 @@ public:
      static int MATING_BABIES;
 
      static float DIST;		//how far can the eyes see on each bot?
+     static float MUTRATE1_INIT_LOW;
+     static float MUTRATE1_INIT_HIGH;
+     static float MUTRATE2_INIT_LOW;
+     static float MUTRATE2_INIT_HIGH;
      static float METAMUTRATE1; //what is the change in MUTRATE1 and 2 on reproduction? lol
      static float METAMUTRATE2;
 
