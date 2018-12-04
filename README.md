@@ -1,14 +1,25 @@
-SCRIPTBOTS
-Author: Andrej Karpathy
-Contributors: Casey Link
-Licence: BSD
+# PROJECT
+
+This project is based on a fork of the original Scriptbots created by Andrej Karpathy :
+
+https://github.com/karpathy/scriptsbots
 
 Project website and attached forum: 
+
 https://sites.google.com/site/scriptbotsevo/home
+
+The control and evolution of the agents behavior has been modified to use the NEAT algorithm :
+
+http://nn.cs.utexas.edu/downloads/papers/stanley.ec02.pdf
+
+Using the original implementation :
+
+https://github.com/FernandoTorres/NEAT
 
 ------------------------------------------------------
 
-BUILDING:
+# BUILDING (INCOMPLETE)
+
 To compile scriptbots you will need:
 
 CMake >= 2.8 (http://www.cmake.org/cmake/resources/software.html)
@@ -32,7 +43,9 @@ $ ./scriptbots
 For Windows:
 Follow basically the same steps, but after running cmake open up the VS solution (.sln) file it generates and compile the project from VS.
 
-USAGE:
+------------------------------------------------------
+
+# USAGE (INCOMPLETE)
 
 Compile and run. Hit 'd' to make it go MUCH FASTER (and not draw). Speed can
 also be controlled with + and -. Use mouse to pan and zoom around.
