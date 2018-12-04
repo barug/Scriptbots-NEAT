@@ -16,9 +16,15 @@ Using the original implementation :
 
 https://github.com/FernandoTorres/NEAT
 
+New metrics and network views have been added with VTK:
+
+https://www.vtk.org/
+
+A system to configure the world and save its state has been added
+
 ------------------------------------------------------
 
-# BUILDING (INCOMPLETE)
+# BUILDING (INCOMPLETE : OLD)
 
 To compile scriptbots you will need:
 
@@ -45,7 +51,7 @@ Follow basically the same steps, but after running cmake open up the VS solution
 
 ------------------------------------------------------
 
-# USAGE (INCOMPLETE)
+# USAGE (INCOMPLETE : OLD)
 
 Compile and run. Hit 'd' to make it go MUCH FASTER (and not draw). Speed can
 also be controlled with + and -. Use mouse to pan and zoom around.
