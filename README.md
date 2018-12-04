@@ -22,6 +22,8 @@ https://www.vtk.org/
 
 A system to configure the world and save its state has been added
 
+# The Readme will soon be updated
+
 ------------------------------------------------------
 
 # BUILDING (INCOMPLETE : OLD)
