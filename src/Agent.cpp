@@ -50,11 +50,8 @@ Agent::Agent()
     eyesensmod= randf(1, 3);
     bloodmod= randf(1, 3);
     
-    //MUTRATE1= randf(0.001, 0.005);
     MUTRATE1= randf(conf::MUTRATE1_INIT_LOW, conf::MUTRATE1_INIT_HIGH);
     MUTRATE2= randf(conf::MUTRATE2_INIT_LOW, conf::MUTRATE2_INIT_HIGH);
-    //cout << "mutrate1:" << MUTRATE1 << endl;
-    //cout << "mutrate2:" << MUTRATE2 << endl;
 
     spiked= false;
     
@@ -105,9 +102,7 @@ double Agent::compatibility(Agent *other) {
     double brainCompat = brain->compatibility(other->brain);
     double bodyCompat = 0;
 
-    //cout << "---------------------" << endl;
     bodyCompat += abs(this->herbivore - other->herbivore) * 4;
-    //bodyCompat = this->temperature_preference / other->temperature_preference;
     bodyCompat += abs(this->smellmod - other->smellmod) / 2;
     bodyCompat += abs(this->hearmod- other->hearmod) / 2;
     bodyCompat += abs(this->eyesensmod - other->eyesensmod) / 2;
@@ -120,17 +115,9 @@ double Agent::compatibility(Agent *other) {
     }
     eyesCompat /= 5;
     bodyCompat += eyesCompat;
-    bodyCompat *= 1;
-    compatibility = brainCompat + bodyCompat;
+
+    compatibility = conf::BRAIN_COMPAT_MULT * brainCompat + conf::BODY_COMPAT_MULT * bodyCompat;
     if (compatibility > conf::MATING_COMPATIBILITY_TRESHOLD) {
-        /*cout << "herbivoreCompat : " << abs(this->herbivore - other->herbivore) * 4 << endl;
-        cout << "smellCompat : " << abs(this->smellmod - other->smellmod) / 2 << endl;
-        cout << "hearCompat : " << abs(this->hearmod- other->hearmod) / 2 << endl;
-        cout << "eyesensCompat : " << abs(this->eyesensmod - other->eyesensmod) / 2 << endl;
-        cout << "bloodCompat : " << abs(this->bloodmod - other->bloodmod) / 2 << endl;
-        cout << "eyesCompat : " << eyesCompat << endl;
-        cout << "bodyCompat : " << bodyCompat << endl;
-        cout << "brainCompat : " << brainCompat << endl;*/
     }
     return compatibility;
 }
@@ -190,8 +177,7 @@ Agent *Agent::reproduce(float MR, float MR2, vector<NEAT::Innovation*> &innovati
     }
     
     a2->temperature_preference= cap(randn(this->temperature_preference, 0.005));
-//    a2->temperature_preference= this->temperature_preference;
-    
+
     //mutate brain here
     a2->brain = this->brain->duplicate();
     a2->brain->mutate(MR,MR2, innovations, cur_innov_num);
@@ -437,5 +423,5 @@ Agent::Agent(std::ifstream &inFile)
     brain = new NEATBrain(inFile);
     inFile >> wordBuff;
     if (wordBuff != "AgentEnd")
-        throw std::runtime_error("bad format");
+        throw std::runtime_error("bad format : AgentEnd");
 }

@@ -35,8 +35,6 @@ Species::Species(std::ifstream &inFile, std::vector<Agent*> all_agents)
     int agentId;
     inFile >> numberOfAgents;
 
-    std::cout << "Species id : " << _id << " popMaxRecord : " << _popMaxRecord << " totalMembers : " << _totalMembersOverTime << " drawn : " << _drawn << " numberOfAgents : " << numberOfAgents << std::endl;
-
     for (int i = 0; i < numberOfAgents; ++i) {
         inFile >> agentId;
         std::vector<Agent*>::iterator it =

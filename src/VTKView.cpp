@@ -60,22 +60,8 @@
 
 VTKView::VTKView()
 {
-    //setup a strategy for laying out the graph
-// NOTE: You can set additional options for each strategy, as desired
-
-
-//strategy = vtkSimple2DLayoutStrategy()
-//strategy = vtkCosmicTreeLayoutStrategy()
-//strategy = vtkForceDirectedLayoutStrategy()
-//strategy = vtkTreeLayoutStrategy()
-    //vtkNew<vtkSimple2DLayoutStrategy> strategy;
-// set the strategy on the layout
-    //vtkNew<vtkGraphLayout> layout;
-
-    //_strategy->SetRestDistance(0.1);
     _strategy->SetVertexAttribute("nodeType");
     _layout->SetLayoutStrategy(_strategy.GetPointer());
-    //layout->SetInputConnection(source->GetOutputPort());
     _layout->SetInputData(_graph.GetPointer());
 // create the renderer to help in sizing glyphs for the vertices
 
@@ -183,6 +169,5 @@ void VTKView::displayAgentInfo(const Agent *agent) {
     _layout->Update();
     _ren->ResetCamera();
 
-    //ren2->Render();
     _renWin->Render();
 }

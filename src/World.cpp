@@ -24,12 +24,7 @@ World::World() :
     last_species(1)
     {
     addRandomBots(conf::NUMBOTS);
-    /*initSpeciation();
-    std::cout << "n Species : " << all_species.size() << endl;
-    for (auto species: all_species) {
-        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOfAgents() << endl;
-    }
-    *///inititalize food layer
+    //inititalize food layer
 
     food.resize(FW);
 
@@ -45,6 +40,7 @@ World::World() :
     ptr=0;
 
     VTKSPECIESVIEW = new VTKSpeciesView();
+    VTKPLOTVIEW = new VTKPlotView();
 }
 
 World::World(std::string path) :
@@ -67,18 +63,15 @@ World::World(std::string path) :
     inFile >> modcounter;
     inFile >> current_epoch;
     inFile >> idcounter;
-    std::cout << modcounter << " " << current_epoch << " " << idcounter << std::endl;
 
     int numAgents;
     inFile >> numAgents;
-    std::cout << "numAgents : " << numAgents << std::endl;
     for (int i = 0; i < numAgents; ++i) {
         agents.push_back(new Agent(inFile));
     }
 
     int numInnovations;
     inFile >> numInnovations;
-    cout << "numInnovations : " << numInnovations << endl;
     for (int i = 0; i < numInnovations; i++) {
         cout << i << endl;
         innovations.push_back(new NEAT::Innovation(inFile));
@@ -128,8 +121,9 @@ World::World(std::string path) :
         throw std::runtime_error("allSpeciesEnd");
 
     VTKSPECIESVIEW = new VTKSpeciesView(inFile);
+    VTKPLOTVIEW = new VTKPlotView(inFile);
 
-        inFile >> wordBuff;
+    inFile >> wordBuff;
     if (wordBuff != "worldEnd")
         throw std::runtime_error("bad format : worldEnd");
 
@@ -165,9 +159,7 @@ void World::update()
     if (modcounter>=10000) {
         modcounter=0;
         current_epoch++;
-        cout << "periodicsave : " << periodicSave << endl;
         if (periodicSave && (current_epoch % periodicSave == 0)) {
-            cout << "path : " << saveFilePath + std::to_string(current_epoch) << endl;
             printToFile(saveFilePath + std::to_string(current_epoch));
         }
     }
@@ -332,6 +324,14 @@ void World::update()
             //cout << "adding agent" << endl;
             addRandomBots(1);
         }
+
+        std::pair<int,int> num_herbs_carns = numHerbCarnivores();
+
+        if (num_herbs_carns.second < 10) {
+            cout << num_herbs_carns.second << std::endl;
+            addCarnivore();
+        }
+
         if (modcounter%100==0) {
 
             //todo : fix this part
@@ -583,8 +583,12 @@ void World::processOutputs()
 
             //NOTE: herbivore cant attack. TODO: hmmmmm
             //fot now ok: I want herbivores to run away from carnivores, not kill them back
-            if (agents[i]->spikeLength<0.2 || agents[i]->w1<0.5 || agents[i]->w2<0.5) continue;
+            if (agents[i]->spikeLength<0.2 || agents[i]->w1<0.5 || agents[i]->w2<0.5)
+                continue;
             //if(agents[i]->herbivore>0.8 || agents[i]->spikeLength<0.2 || agents[i]->w1<0.5 || agents[i]->w2<0.5) continue;
+
+            if (conf::DAMAGE_LIMIT && agents[i]->herbivore > conf::DAMAGE_LIMIT)
+                continue;
 
             for (int j=0;j<agents.size();j++) {
                 
@@ -601,7 +605,8 @@ void World::processOutputs()
                         float mult=1;
                         if (agents[i]->boost) mult= conf::BOOSTSIZEMULT;
                         float DMG= conf::SPIKEMULT*agents[i]->spikeLength*max(fabs(agents[i]->w1),fabs(agents[i]->w2))*conf::BOOSTSIZEMULT;
-                        DMG *= 0.5 + (1-agents[i]->herbivore);
+                        if (conf::DAMAGE_GRADIENT)
+                            DMG *= (1-agents[i]->herbivore);
                         agents[j]->health-= DMG;
 
                         if (agents[i]->health>2) agents[i]->health=2; //cap health at 2
@@ -676,7 +681,6 @@ void World::positionOfInterest(int type, float &xi, float &yi) {
 
 void World::printToFile(std::string path)
 {
-    std::cout << "saving" << std::endl;
     std::ofstream outFile;
     outFile.open(path, std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
 
@@ -725,10 +729,11 @@ void World::printToFile(std::string path)
     outFile << "allSpeciesEnd" << std::endl;
 
     VTKSPECIESVIEW->saveToFile(outFile);
+    VTKPLOTVIEW->saveToFile(outFile);
 
     outFile << "worldEnd" << std::endl;
     outFile.close();
-    std::cout << "finished saving" << std::endl;
+    std::cout << "saved to : " << path << std::endl;
 }
 
 void World::printToFile()
@@ -749,8 +754,10 @@ void World::setPeriodicSave(int period)
 void World::addCarnivore()
 {
     Agent *a = new Agent();
-    a->id= idcounter;
+    a->makeBasicBrain();
+    a->id = idcounter;
     idcounter++;
+    speciateAgent(a);
     a->herbivore= randf(0, 0.1);
     agents.push_back(a);
 }
@@ -764,37 +771,6 @@ void World::addHerbivore()
     agents.push_back(a);
 }
 
-
-/*
-void World::addNewByCrossover()
-{
-
-    //find two success cases
-    int i1= randi(0, agents.size());
-    int i2= randi(0, agents.size());
-    for (int i=0;i<agents.size();i++) {
-        if (agents[i]->age > agents[i1]->age && randf(0,1)<0.1) {
-            i1= i;
-        }
-        if (agents[i]->age > agents[i2]->age && randf(0,1)<0.1 && i!=i1) {
-            i2= i;
-        }
-    }
-
-    Agent* a1= agents[i1];
-    Agent* a2= agents[i2];
-
-
-    //cross brains
-    Agent *anew = a1->crossover(*a2);
-
-
-    //maybe do mutation here? I dont know. So far its only crossover
-    anew->id= idcounter;
-    idcounter++;
-    agents.push_back(anew);
-}
-*/
 
 void World::reproduce(int ai, float MR, float MR2)
 {
@@ -906,11 +882,11 @@ void World::writeReport()
 //     for(int i=0;i<agents.size();i++){
 //         if(agents[i]->herbivore>0.5) numherb++;
 //         else numcarn++;
-// 
+//
 //         if(agents[i]->herbivore>0.5 && agents[i]->gencount>topherb) topherb= agents[i]->gencount;
 //         if(agents[i]->herbivore<0.5 && agents[i]->gencount>topcarn) topcarn= agents[i]->gencount;
 //     }
-// 
+//
 //     FILE* fp = fopen("report.txt", "a");
 //     fprintf(fp, "%i %i %i %i\n", numherb, numcarn, topcarn, topherb);
 //     fclose(fp);

@@ -135,11 +135,9 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         world->reset();
         printf("Agents reset\n");
     }else if (key=='m') {
-        cout << "start" << endl;
         paused=true;
         world->printToFile();
         paused=false;
-        cout << "end" << endl;
     } else if (key=='e') { //dezoom
 
         VTKVIEW->zoom(0.95);

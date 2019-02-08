@@ -4,6 +4,7 @@
 
 #include "VTKPlotView.h"
 #include <vtkVariantArray.h>
+#include <vtkTableWriter.h>
 
 VTKPlotView::VTKPlotView()
 {
@@ -16,6 +17,51 @@ VTKPlotView::VTKPlotView()
     _data->AddColumn(index.GetPointer());
     _data->AddColumn(numHerb.GetPointer());
     _data->AddColumn(numCarn.GetPointer());
+
+    _view->GetRenderWindow()->SetSize(800, 400);
+    _view->Render();
+}
+
+VTKPlotView::VTKPlotView(std::ifstream &inFile)
+{
+    std::string wordBuff;
+
+    inFile >> wordBuff;
+    if (wordBuff != "linePlotViewBegin")
+        throw std::runtime_error("bad format : linePlotViewBegin");
+
+    int tableSize;
+
+    inFile >> tableSize;
+
+    vtkNew<vtkIntArray> index;
+    vtkNew<vtkIntArray> numHerb;
+    vtkNew<vtkIntArray> numCarn;
+    numHerb->SetName("numHerb");
+    numCarn->SetName("numCarn");
+    index->SetName("x");
+    _data->AddColumn(index.GetPointer());
+    _data->AddColumn(numHerb.GetPointer());
+    _data->AddColumn(numCarn.GetPointer());
+
+    for (int j = 0; j < tableSize; ++j) {
+        int x;
+        int numHerb;
+        int numCarn;
+
+        inFile >> x;
+        inFile >> numHerb;
+        inFile >> numCarn;
+
+        vtkNew<vtkVariantArray> row;
+        vtkVariant buf[3] = {vtkVariant(x), vtkVariant(numHerb), vtkVariant(numCarn)};
+        row->SetArray(buf, 3, 1);
+        _data->InsertNextRow(row.GetPointer());
+    }
+
+    inFile >> wordBuff;
+    if (wordBuff != "linePlotViewEnd")
+        throw std::runtime_error("bad format : linePlotViewEnd");
 
     _view->GetRenderWindow()->SetSize(800, 400);
     _view->Render();
@@ -63,4 +109,18 @@ void VTKPlotView::addDataRow(int numHerb, int numCarn)
 void VTKPlotView::startInteraction()
 {
     _view->GetInteractor()->Start();
+}
+
+void VTKPlotView::saveToFile(std::ofstream &outFile)
+{
+    outFile << "linePlotViewBegin" << endl;
+
+    outFile << _data->GetNumberOfRows() << endl;
+
+    for (int i = 0; i < _data->GetNumberOfRows(); ++i) {
+        vtkVariantArray *row = _data->GetRow(i);
+        outFile << row->GetPointer(0)->ToInt() << " " << row->GetPointer(1)->ToInt() << " " << row->GetPointer(2)->ToInt() << " ";
+    }
+
+    outFile << "linePlotViewEnd" << endl;
 }

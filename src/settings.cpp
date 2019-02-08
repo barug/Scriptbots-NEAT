@@ -91,7 +91,7 @@ void conf::initialize() {
     METAMUTRATE2= 0.05;
 
     FOODINTAKE= 0.002; //how much does every agent consume?
-    FOODWASTE= 0.001; //how much food disapears if agent eats?
+    FOODWASTE= 0.001; //how much. food disapears if agent eats?
     FOODMAX= 0.5; //how much food per cell can there be at max?
     FOODADDFREQ= 15; //how often does random square get to full food?
 
@@ -158,7 +158,7 @@ void conf::load_conf(std::string path)
             lineStream >> conf::BABIES;
         }
         if (wordBuff == "BOOSTSIZEMULT") {
-            lineStream >> conf::WWIDTH;
+            lineStream >> conf::BOOSTSIZEMULT;
         }
         if (wordBuff == "REPRATEH") {
             lineStream >> conf::REPRATEH;

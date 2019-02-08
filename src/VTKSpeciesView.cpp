@@ -28,7 +28,6 @@ VTKSpeciesView::VTKSpeciesView(std::ifstream &inFile)
 {
     vtkNew<vtkTableReader> reader;
     std::string wordBuff;
-    char curline[4096];
 
     inFile >> wordBuff;
     if (wordBuff != "speciesViewBegin")
@@ -73,7 +72,6 @@ VTKSpeciesView::VTKSpeciesView(std::ifstream &inFile)
         table->AddColumn(yMinArray.GetPointer());
         table->AddColumn(yMaxArray.GetPointer());
 
-        cout << "tableSize : " << tableSize << endl;
 
         for (int j = 0; j < tableSize; ++j) {
             long int x;
@@ -87,33 +85,16 @@ VTKSpeciesView::VTKSpeciesView(std::ifstream &inFile)
             vtkNew<vtkVariantArray> row;
             vtkVariant buf[3] = {vtkVariant(x), vtkVariant(yMin), vtkVariant(yMax)};
             row->SetArray(buf, 3, 1);
-            cout << "x : " << row->GetPointer(0)->ToLong() << " yMin : " << row->GetPointer(1)->ToInt() << " yMax : " << row->GetPointer(2)->ToInt() << endl;
             table->InsertNextRow(row.GetPointer());
         }
 
         _data.insert(std::pair<int, vtkSmartPointer<vtkTable>>(id, table));
-
-        /*int tabletextSize;
-        inFile >> tabletextSize;
-
-        inFile.read(curline, tabletextSize);
-        curline[tabletextSize] = 0;
-        //cout << curline;
-        reader->SetInputString(curline);
-        reader->Update();
-
-        vtkSmartPointer<vtkTable> newTable(reader->GetOutput());
-        _data.insert(std::pair<int, vtkSmartPointer<vtkTable>>(id, newTable));
-        newTable->Print(cout);*/
     }
 
-    cout << "nbrofTable : " << nbrOfTable << " _data size : " << _data.size() << " colors size : " << _colors.size() << endl;
 
     inFile >> wordBuff;
-    cout << "|" << wordBuff << "|" << endl;
     if (wordBuff != "speciesViewEnd")
         throw std::runtime_error("bad format : speciesViewEnd");
-    cout << "finished loading species view"<< endl;
 
     _view->GetRenderWindow()->SetSize(800, 400);
     renderData();
@@ -123,7 +104,6 @@ VTKSpeciesView::VTKSpeciesView(std::ifstream &inFile)
 
 void VTKSpeciesView::addSpeciesData(std::vector<Species*> all_species)
 {
-    //vtkNew<vtkChartXY> chart;
     int currentHeight = 0;
 
     _view->GetScene()->ClearItems();
@@ -163,38 +143,21 @@ void VTKSpeciesView::addSpeciesData(std::vector<Species*> all_species)
             if (species->getNumberOfAgents() > 0) {
                 int nextHeight = currentHeight + species->getNumberOfAgents();
 
-                //cout << "currentHeight : " << currentHeight << " nextHeight : " << nextHeight << endl;
                 vtkNew<vtkVariantArray> row;
                 vtkVariant buf[3] = {vtkVariant(_xCounter), vtkVariant(currentHeight), vtkVariant(nextHeight)};
                 row->SetArray(buf, 3, 1);
-                //cout << "x : " << row->GetPointer(0)->ToLong() << " yMin : " << row->GetPointer(1)->ToInt() << " yMax : " << row->GetPointer(2)->ToInt() << endl;
                 table->InsertNextRow(row.GetPointer());
 
                 currentHeight = nextHeight;
             }
-  /*          vtkNew<vtkPlotArea> area;
-            area->SetInputData(table.GetPointer());
-            area->SetInputArray(0, "x");
-            area->SetInputArray(1, "yMinArray");
-            area->SetInputArray(2, "yMaxArray");
-            area->SetColor(color[0], color[1], color[2], 255);
-            chart->AddPlot(area.GetPointer());
-            chart->RecalculateBounds();
-  */      }
+        }
     }
 
     ++_xCounter;
-    //std::cout << "xCounter : " << _xCounter << endl;
 
     renderData();
 
-    /*_view->GetRenderWindow()->SetMultiSamples(0);
-    _view->GetRenderer()->SetBackground(1.0, 1.0, 1.0);
 
-
-    _view->GetScene()->AddItem(chart.GetPointer());
-    _view->Render();
-*/
 }
 
 void VTKSpeciesView::renderData()
@@ -233,7 +196,6 @@ void VTKSpeciesView::startInteraction()
 
 void VTKSpeciesView::saveToFile(std::ofstream &outFile)
 {
-    cout << "speciesViewBegin" << endl;
     outFile << "speciesViewBegin" << std::endl;
     outFile << _xCounter << " ";
     outFile << _data.size() << endl;
@@ -250,21 +212,12 @@ void VTKSpeciesView::saveToFile(std::ofstream &outFile)
 
         outFile << table->GetNumberOfRows() << endl;
 
-        cout << table->GetNumberOfRows() << endl;
-
         for (int i = 0; i < table->GetNumberOfRows(); ++i) {
             vtkVariantArray *row = table->GetRow(i);
             outFile << row->GetPointer(0)->ToLong() << " " << row->GetPointer(1)->ToInt() << " " << row->GetPointer(2)->ToInt() << " ";
-            cout << row->GetPointer(0)->ToLong() << " " << row->GetPointer(1)->ToInt() << " " << row->GetPointer(2)->ToInt()<< " ";
         }
         outFile << endl;
-
-        /*writer->Write();
-        char *outStr = writer->GetOutputString();
-        //outStr[writer->GetOutputStringLength()] = 0;
-        outFile << writer->GetOutputStringLength() << endl;
-        outFile << outStr;*/
     }
-    cout << "speciesViewEnd" << endl;
+
     outFile << "speciesViewEnd" << std::endl;
 }

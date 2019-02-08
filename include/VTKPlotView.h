@@ -35,8 +35,10 @@ class VTKPlotView {
 
 public:
     VTKPlotView();
+    VTKPlotView(std::ifstream &inFile);
     void addDataRow(int numHerb, int numCarn);
     void startInteraction();
+    void saveToFile(std::ofstream &outFile);
 };
 
 

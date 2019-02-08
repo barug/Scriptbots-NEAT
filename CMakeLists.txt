@@ -20,7 +20,7 @@ if (OPENMP_FOUND)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
 
-set(VTK_DIR "~/data/VTK-7.1.1")
+set(VTK_DIR "~/data/VTK-7.1.1") # change this to the real path to vtk on your system
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 

@@ -23,12 +23,18 @@ public:
      static float BOTSPEED;
      static float SPIKESPEED; //how quickly can attack spike go up?
      static float SPIKEMULT; //essentially the strength of every spike impact
+
+     static float DAMAGE_LIMIT; //if different from 0 only agent with herbivor attr under < DAMAGE_LIMIT will do damages;
+     static float DAMAGE_GRADIENT; // if different from 0 damage made by agents is on a gradient in relationship to herbivor attributes, with full carn doing full damage
+
      static int BABIES; //number of babies per agent when they reproduce
      static float BOOSTSIZEMULT; //how much boost do agents get? when boost neuron is on
      static float REPRATEH; //reproduction rate for herbivors
      static float REPRATEC; //reproduction rate for carnivors
      static float MATING_RADIUS;
      static double MATING_COMPATIBILITY_TRESHOLD;
+     static double BODY_COMPAT_MULT; // this controls how much agent's body attributes influence compatibility;
+     static double BRAIN_COMPAT_MULT; // this controls how much agent's brain genome compatibility influence overall compatibility
      static int MATING_BABIES;
 
      static float DIST;		//how far can the eyes see on each bot?

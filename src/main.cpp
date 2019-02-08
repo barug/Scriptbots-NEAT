@@ -18,7 +18,7 @@
 
 GLView* GLVIEW = new GLView(0);
 VTKView* VTKVIEW = new VTKView();
-VTKPlotView * VTKPLOTVIEW = new VTKPlotView();
+VTKPlotView * VTKPLOTVIEW;
 VTKSpeciesView *VTKSPECIESVIEW;
 
 int main(int argc, char **argv) {
