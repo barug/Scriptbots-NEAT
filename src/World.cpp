@@ -1,4 +1,5 @@
 #include "World.h"
+#include "config.h"
 
 #include <ctime>
 
@@ -44,7 +45,9 @@ World::World() :
     numHerbivore.resize(200, 0);
     ptr=0;
 
+#ifdef HAVE_VTK
     VTKSPECIESVIEW = new VTKSpeciesView();
+#endif
 }
 
 World::World(std::string path) :
@@ -127,7 +130,9 @@ World::World(std::string path) :
     if (wordBuff != "allSpeciesEnd")
         throw std::runtime_error("allSpeciesEnd");
 
+#ifdef HAVE_VTK
     VTKSPECIESVIEW = new VTKSpeciesView(inFile);
+#endif
 
         inFile >> wordBuff;
     if (wordBuff != "worldEnd")
@@ -155,11 +160,15 @@ void World::update()
         std::pair<int,int> num_herbs_carns = numHerbCarnivores();
         numHerbivore[ptr]= num_herbs_carns.first;
         numCarnivore[ptr]= num_herbs_carns.second;
+#ifdef HAVE_VTK
         VTKPLOTVIEW->addDataRow(num_herbs_carns.first, num_herbs_carns.second);
+#endif
         ptr++;
         if(ptr == numHerbivore.size()) ptr = 0;
         removeShortLivedSpecies();
+#ifdef HAVE_VTK
         VTKSPECIESVIEW->addSpeciesData(all_species);
+#endif
     }
     //if (modcounter%1000==0) writeReport();
     if (modcounter>=10000) {
@@ -724,7 +733,9 @@ void World::printToFile(std::string path)
     }
     outFile << "allSpeciesEnd" << std::endl;
 
+#ifdef HAVE_VTK
     VTKSPECIESVIEW->saveToFile(outFile);
+#endif
 
     outFile << "worldEnd" << std::endl;
     outFile.close();
@@ -951,7 +962,9 @@ void World::processMouse(int button, int state, int x, int y)
          for (int i=0;i<agents.size();i++) agents[i]->selectflag=false;
          agents[mini]->selectflag= true;
          agents[mini]->printSelf();
+#ifdef HAVE_VTK
          VTKVIEW->displayAgentInfo(agents[mini]);
+#endif
      }
 }
      

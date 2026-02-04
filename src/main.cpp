@@ -2,24 +2,31 @@
 #include <sstream>
 
 #include "GLView.h"
-#include "VTKView.h"
-#include "VTKPlotView.h"
 #include "World.h"
 
 #include "config.h"
+#ifdef HAVE_VTK
+#include "VTKView.h"
+#include "VTKPlotView.h"
+#include <vtkNew.h>
+#endif
+
 #ifdef LOCAL_GLUT32
     #include "glut.h"
+#elif defined(__APPLE__)
+    #include <GLUT/glut.h>
 #else
     #include <GL/glut.h>
 #endif
 
 #include <stdio.h>
-#include <vtkNew.h>
 
 GLView* GLVIEW = new GLView(0);
+#ifdef HAVE_VTK
 VTKView* VTKVIEW = new VTKView();
 VTKPlotView * VTKPLOTVIEW = new VTKPlotView();
 VTKSpeciesView *VTKSPECIESVIEW;
+#endif
 
 int main(int argc, char **argv) {
     conf::initialize();
@@ -49,7 +56,7 @@ int main(int argc, char **argv) {
                 break;
             case 'c':
                 if (world) {
-                    cout << "c option should be first" << endl;
+                    std::cout << "c option should be first" << std::endl;
                     return 0;
                 }
                 conf::load_conf(optarg);

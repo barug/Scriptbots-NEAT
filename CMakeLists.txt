@@ -1,5 +1,6 @@
+cmake_minimum_required(VERSION 3.10)
 project(scriptbots)
-cmake_minimum_required(VERSION 3.1)
+
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
@@ -20,9 +21,15 @@ if (OPENMP_FOUND)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
 
-set(VTK_DIR "~/data/VTK-7.1.1")
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
+# VTK is optional
+find_package(VTK QUIET)
+if (VTK_FOUND)
+    SET (HAVE_VTK 1)
+    include(${VTK_USE_FILE})
+    message(STATUS "VTK found - building with VTK support")
+else()
+    message(STATUS "VTK not found - building without VTK support")
+endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
@@ -38,7 +45,6 @@ set( SB_SRCS
         src/Agent.cpp
         src/World.cpp
         src/vmath.cpp
-        src/VTKView.cpp
         src/NEAT/gene.cpp
         src/NEAT/genome.cpp
         src/NEAT/innovation.cpp
@@ -49,17 +55,26 @@ set( SB_SRCS
         src/NEAT/nnode.cpp
         src/NEAT/trait.cpp
         src/NEAT/Species.cpp
-        src/VTKPlotView.cpp
-        src/VTKSpeciesView.cpp
         src/settings.cpp)
+
+# Add VTK sources only if VTK is found
+if (VTK_FOUND)
+    list(APPEND SB_SRCS
+        src/VTKView.cpp
+        src/VTKPlotView.cpp
+        src/VTKSpeciesView.cpp)
+endif()
 
 add_executable(scriptbots  ${SB_SRCS})
 
-
-target_link_libraries(scriptbots ${VTK_LIBRARIES})
+if (VTK_FOUND)
+    target_link_libraries(scriptbots ${VTK_LIBRARIES})
+endif()
 
 if (WIN32 AND NOT GLUT_FOUND)
     target_link_libraries(scriptbots ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLUT32_LIBRARY})
+elseif(APPLE)
+    target_link_libraries(scriptbots ${OPENGL_LIBRARIES} ${GLUT_LIBRARIES})
 else()
     target_link_libraries(scriptbots ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
 endif()

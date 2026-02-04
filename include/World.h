@@ -6,9 +6,13 @@
 #include "View.h"
 #include "Agent.h"
 #include "settings.h"
+#include "config.h"
+
+#ifdef HAVE_VTK
 #include "VTKView.h"
 #include "VTKPlotView.h"
 #include "VTKSpeciesView.h"
+#endif
 
 #include <vector>
 

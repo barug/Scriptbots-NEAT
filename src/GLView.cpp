@@ -1,15 +1,21 @@
 #include "GLView.h"
-#include "VTKView.h"
 
+#include <iostream>
 #include "config.h"
+#ifdef HAVE_VTK
+#include "VTKView.h"
+#include <vtk_glew.h>
+#endif
+
 #ifdef LOCAL_GLUT32
 #include "glut.h"
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif
 
 #include <stdio.h>
-#include <vtk_glew.h>
 
 
 
@@ -135,13 +141,14 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         world->reset();
         printf("Agents reset\n");
     }else if (key=='m') {
-        cout << "start" << endl;
+        std::cout << "start" << std::endl;
         paused=true;
         world->printToFile();
         paused=false;
-        cout << "end" << endl;
-    } else if (key=='e') { //dezoom
-
+        std::cout << "end" << std::endl;
+    }
+#ifdef HAVE_VTK
+    else if (key=='e') { //dezoom
         VTKVIEW->zoom(0.95);
     } else if (key=='a') { //zoom
         VTKVIEW->zoom(1.05);
@@ -158,6 +165,7 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
     } else if (key=='y') {
         VTKPLOTVIEW->startInteraction();
     }
+#endif
     else if (key=='p') {
         //pause
         paused= !paused;
