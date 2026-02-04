@@ -5,6 +5,7 @@
 #include "NEAT/Species.h"
 #include "View.h"
 #include "Agent.h"
+#include "FoodSystem.h"
 #include "settings.h"
 #include "config.h"
 
@@ -15,6 +16,7 @@
 #endif
 
 #include <vector>
+#include <memory>
 
 class World {
 public:
@@ -91,13 +93,9 @@ private:
     int cur_node_id;  //Current label number available
     double cur_innov_num;
     
-    // food
-    int FW;
-    int FH;
-    int fx;
-    int fy;
-    //float food[conf::WIDTH/conf::CZ][conf::HEIGHT/conf::CZ];
-    std::vector<std::vector<float>> food;
+    // food system
+    std::unique_ptr<FoodSystem> foodSystem_;
+    
     bool CLOSED; //if environment is closed, then no random bots are added per time interval
 };
 

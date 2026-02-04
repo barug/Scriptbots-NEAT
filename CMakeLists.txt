@@ -4,7 +4,7 @@ project(scriptbots)
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
 
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 14)
 SET(CMAKE_BUILD_TYPE Debug)
 
 if (WIN32 AND NOT GLUT_FOUND)
@@ -44,6 +44,7 @@ set( SB_SRCS
         src/AssemblyBrain.cpp
         src/Agent.cpp
         src/World.cpp
+        src/FoodSystem.cpp
         src/vmath.cpp
         src/NEAT/gene.cpp
         src/NEAT/genome.cpp

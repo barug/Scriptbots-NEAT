@@ -16,8 +16,6 @@ World::World() :
     modcounter(0),
     current_epoch(0),
     idcounter(1),
-    FW(conf::WIDTH/conf::CZ),
-    FH(conf::HEIGHT/conf::CZ),
     CLOSED(false),
     cur_node_id(0),
     cur_innov_num(0),
@@ -25,21 +23,9 @@ World::World() :
     last_species(1)
     {
     addRandomBots(conf::NUMBOTS);
-    /*initSpeciation();
-    std::cout << "n Species : " << all_species.size() << endl;
-    for (auto species: all_species) {
-        cout << "species : " << species->getId() << " number of agents : " << species->getNumberOfAgents() << endl;
-    }
-    *///inititalize food layer
-
-    food.resize(FW);
-
-    for (int x=0;x<FW;x++) {
-        food[x].resize(FH);
-        for (int y=0;y<FH;y++) {
-            food[x][y]= 0;
-        }
-    }
+    
+    // Initialize food system
+    foodSystem_ = std::make_unique<FoodSystem>(conf::WIDTH, conf::HEIGHT, conf::CZ);
     
     numCarnivore.resize(200, 0);
     numHerbivore.resize(200, 0);
@@ -90,28 +76,9 @@ World::World(std::string path) :
     inFile >> cur_node_id ;  //Current label number available
     inFile >> cur_innov_num ;
 
-    // food
-    inFile >> FW ;
-    inFile >> FH ;
-    inFile >> fx ;
-    inFile >> fy ;
-
-    inFile >> wordBuff;
-    if (wordBuff != "foodMapBegin")
-        throw std::runtime_error("bad format : foodMapBegin");
-
-
-    food.resize(FW);
-    for (int x=0;x<FW;x++) {
-        food[x].resize(FH);
-        for (int y=0;y<FH;y++) {
-            inFile >> food[x][y];
-        }
-    }
-
-    inFile >> wordBuff;
-    if (wordBuff != "foodMapEnd")
-        throw std::runtime_error("bad format : foodMapEnd");
+    // Load food system
+    foodSystem_ = std::make_unique<FoodSystem>(inFile);
+    
     inFile >> CLOSED;
 
     inFile >> wordBuff;
@@ -181,9 +148,7 @@ void World::update()
         }
     }
     if (modcounter%conf::FOODADDFREQ==0) {
-        fx=randi(0,FW);
-        fy=randi(0,FH);
-        food[fx][fy]= conf::FOODMAX;
+        foodSystem_->spawnFoodAtRandom(conf::FOODMAX);
     }
     
     //reset any counter variables per agent
@@ -373,9 +338,7 @@ void World::setInputs()
         a->in[11]= cap(a->health/2); //divide by 2 since health is in [0,2]
 
         //FOOD
-        int cx= (int) a->pos.x/conf::CZ;
-        int cy= (int) a->pos.y/conf::CZ;
-        a->in[4]= food[cx][cy]/conf::FOODMAX;
+        a->in[4]= foodSystem_->getFoodAt(a->pos.x, a->pos.y) / conf::FOODMAX;
 
         //SOUND SMELL EYES
         vector<float> p(NUMEYES,0);
@@ -552,10 +515,7 @@ void World::processOutputs()
 
     //process food intake for herbivors
     for (int i=0;i<agents.size();i++) {
-
-        int cx= (int) agents[i]->pos.x/conf::CZ;
-        int cy= (int) agents[i]->pos.y/conf::CZ;
-        float f= food[cx][cy];
+        float f = foodSystem_->getFoodAt(agents[i]->pos.x, agents[i]->pos.y);
         if (f>0 && agents[i]->health<2) {
             //agent eats the food
             float itk=min(f,conf::FOODINTAKE);
@@ -563,7 +523,7 @@ void World::processOutputs()
             itk= itk*agents[i]->herbivore*speedmul; //herbivores gain more from ground food
             agents[i]->health+= itk;
             agents[i]->repcounter -= 3*itk;
-            food[cx][cy]-= min(f,conf::FOODWASTE);
+            foodSystem_->consumeFood(agents[i]->pos.x, agents[i]->pos.y, min(f,conf::FOODWASTE));
         }
     }
 
@@ -709,20 +669,9 @@ void World::printToFile(std::string path)
     outFile << cur_node_id << " ";  //Current label number available
     outFile << cur_innov_num << " ";
 
-    // food
-    outFile << FW << " ";
-    outFile << FH << " ";
-    outFile << fx << " ";
-    outFile << fy << std::endl;
-
-    outFile << "foodMapBegin" << std::endl;
-    for (int x=0;x<FW;x++) {
-        for (int y=0;y<FH;y++) {
-            outFile << food[x][y] << " ";
-        }
-    }
-
-    outFile << std::endl << "foodMapEnd" << std::endl;
+    // Save food system
+    foodSystem_->saveToFile(outFile);
+    
     outFile << CLOSED << std::endl;
 
     outFile << "allSpeciesBegin" << std::endl;
@@ -972,12 +921,7 @@ void World::draw(View* view, bool drawfood)
 {
     //draw food
     if(drawfood) {
-        for(int i=0;i<FW;i++) {
-            for(int j=0;j<FH;j++) {
-                float f= 0.5*food[i][j]/conf::FOODMAX;
-                view->drawFood(i,j,f);
-            }
-        }
+        foodSystem_->draw(view, conf::FOODMAX);
     }
     
     //draw all agents

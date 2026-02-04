@@ -16,6 +16,7 @@ enable_testing()
 # Test sources - core logic only (no graphics dependencies)
 set(TESTABLE_SRCS
     ${CMAKE_SOURCE_DIR}/src/Agent.cpp
+    ${CMAKE_SOURCE_DIR}/src/FoodSystem.cpp
     ${CMAKE_SOURCE_DIR}/src/vmath.cpp
     ${CMAKE_SOURCE_DIR}/src/settings.cpp
     ${CMAKE_SOURCE_DIR}/src/DWRAONBrain.cpp
@@ -44,6 +45,7 @@ add_executable(unit_tests
     test_helpers.cpp
     test_vmath.cpp
     test_genome.cpp
+    test_food_system.cpp
     ${TESTABLE_SRCS}
 )
 
