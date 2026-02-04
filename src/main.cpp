@@ -15,6 +15,10 @@
     #include <GL/glut.h>
 #endif
 
+#ifdef HAVE_VTK
+    #include "VTKDashboard.h"
+#endif
+
 #include <stdio.h>
 
 int main(int argc, char **argv) {
@@ -22,8 +26,14 @@ int main(int argc, char **argv) {
     srand(time(0));
     
     printf("p= pause, d= toggle drawing (for faster computation), f= draw food too, += faster, -= slower\n");
-    printf("Pan around by holding down right mouse button, and zoom by holding down middle button.\n");
+    printf("Pan: drag with left or right mouse button. Zoom: scroll wheel, or i/k keys, or drag with middle button.\n");
+    printf("Click on an agent to select it and view its neural network.\n");
 
+    // Initialize GLUT first (before VTK which may also use GLUT)
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+
+    // Now create the world (which creates VTKDashboard)
     World* world = nullptr;
 
     int opt;
@@ -59,13 +69,11 @@ int main(int argc, char **argv) {
 
     // Initialize the simulation context singleton with the world
     Sim.initialize(world);
-
-    //GLUT SETUP
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
-    glutInitWindowPosition(30,30);
-    glutInitWindowSize(conf::WWIDTH,conf::WHEIGHT);
-    glutCreateWindow("Scriptbots");
+    
+    // Position and size the GLUT window (simulation view)
+    glutInitWindowPosition(30, 30);
+    glutInitWindowSize(conf::WWIDTH, conf::WHEIGHT);
+    glutCreateWindow("Scriptbots - Simulation");
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glutDisplayFunc(gl_renderScene);
     glutIdleFunc(gl_handleIdle);
@@ -74,6 +82,19 @@ int main(int argc, char **argv) {
     glutKeyboardFunc(gl_processNormalKeys);
     glutMouseFunc(gl_processMouse);
     glutMotionFunc(gl_processMouseActiveMotion);
+#ifdef __APPLE__
+    // On macOS/freeglut, use glutMouseWheelFunc if available
+    // Note: Apple's GLUT doesn't have glutMouseWheelFunc, scroll is handled via buttons 3/4 in glutMouseFunc
+#else
+    glutMouseWheelFunc(gl_mouseWheel);
+#endif
+
+#ifdef HAVE_VTK
+    // Show the VTK dashboard window
+    if (Sim.vtkDashboard()) {
+        Sim.vtkDashboard()->show();
+    }
+#endif
 
     glutMainLoop();
     return 0;

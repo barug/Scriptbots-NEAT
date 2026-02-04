@@ -58,6 +58,7 @@ public:
     void hide();
     void render();
     void startInteraction();
+    void setWindowGeometry(int x, int y, int width, int height);
 
     // Serialization
     void saveToFile(std::ofstream &outFile);
@@ -96,6 +97,9 @@ private:
     std::map<int, vtkSmartPointer<vtkTable>> speciesData_;
     std::map<int, std::vector<unsigned char>> speciesColors_;
     long int speciesXCounter_;
+    
+    // Stored window geometry (for applying after window is shown)
+    int windowX_, windowY_, windowW_, windowH_;
 };
 
 #endif //SCRIPTBOTS_VTKDASHBOARD_H

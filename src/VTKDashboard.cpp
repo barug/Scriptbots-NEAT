@@ -22,9 +22,13 @@
 using namespace std;
 
 VTKDashboard::VTKDashboard()
-    : isVisible_(false)
+    : isVisible_(true)
     , graphCamera_(nullptr)
     , speciesXCounter_(0)
+    , windowX_(0)
+    , windowY_(0)
+    , windowW_(800)
+    , windowH_(900)
 {
     setupWindow();
     setupGraphView();
@@ -33,9 +37,13 @@ VTKDashboard::VTKDashboard()
 }
 
 VTKDashboard::VTKDashboard(std::ifstream &inFile)
-    : isVisible_(false)
+    : isVisible_(true)
     , graphCamera_(nullptr)
     , speciesXCounter_(0)
+    , windowX_(0)
+    , windowY_(0)
+    , windowW_(800)
+    , windowH_(900)
 {
     setupWindow();
     setupGraphView();
@@ -114,11 +122,20 @@ VTKDashboard::~VTKDashboard() {
 }
 
 void VTKDashboard::setupWindow() {
-    renderWindow_->SetSize(1200, 800);
     renderWindow_->SetWindowName("Scriptbots Dashboard");
-    renderWindow_->SetShowWindow(false);  // Start hidden
-
+    renderWindow_->SetSize(800, 900);
+    
     interactor_->SetRenderWindow(renderWindow_.GetPointer());
+    
+    // Don't render here - defer until after GLUT is initialized in main()
+    // The show() method will be called from main() after glutInit()
+}
+
+void VTKDashboard::setWindowGeometry(int x, int y, int width, int height) {
+    windowX_ = x;
+    windowY_ = y;
+    windowW_ = width;
+    windowH_ = height;
 }
 
 void VTKDashboard::setupGraphView() {
@@ -383,6 +400,7 @@ void VTKDashboard::renderSpeciesChart() {
 void VTKDashboard::show() {
     isVisible_ = true;
     renderWindow_->SetShowWindow(true);
+    renderWindow_->SetSize(windowW_, windowH_);
     renderWindow_->Render();
 }
 

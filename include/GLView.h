@@ -16,6 +16,8 @@ class GLView;
 void gl_processNormalKeys(unsigned char key, int x, int y);
 void gl_processMouse(int button, int state, int x, int y);
 void gl_processMouseActiveMotion(int x, int y);
+void gl_processMousePassiveMotion(int x, int y);
+void gl_mouseWheel(int button, int dir, int x, int y);
 void gl_changeSize(int w, int h);
 void gl_handleIdle();
 void gl_renderScene();
@@ -37,6 +39,7 @@ public:
     void processNormalKeys(unsigned char key, int x, int y);
     void processMouse(int button, int state, int x, int y);
     void processMouseActiveMotion(int x, int y);
+    void mouseWheel(int button, int dir, int x, int y);
     void changeSize(int w, int h);
     void handleIdle();
     void renderScene();
@@ -61,6 +64,14 @@ private:
     int mousex, mousey;
     
     int following;
+    
+    // Actual window dimensions (updated on resize)
+    int windowWidth;
+    int windowHeight;
+    
+    // Track drag state to distinguish click from drag
+    bool isDragging;
+    int clickStartX, clickStartY;
     
 };
 

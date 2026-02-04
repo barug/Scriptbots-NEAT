@@ -2,6 +2,7 @@
 #include "SimulationContext.h"
 
 #include <iostream>
+#include <algorithm>
 #include "config.h"
 #ifdef HAVE_VTK
 #include "VTKDashboard.h"
@@ -39,6 +40,10 @@ void gl_processMouseActiveMotion(int x, int y)
 {
     Sim.glView()->processMouseActiveMotion(x,y);
 }
+void gl_mouseWheel(int button, int dir, int x, int y)
+{
+    Sim.glView()->mouseWheel(button, dir, x, y);
+}
 void gl_renderScene()
 {
     Sim.glView()->renderScene();
@@ -71,12 +76,27 @@ GLView::GLView(World *s) :
         drawfood(true),
         modcounter(0),
         frames(0),
-        lastUpdate(0)
+        lastUpdate(0),
+        windowWidth(conf::WWIDTH),
+        windowHeight(conf::WHEIGHT),
+        isDragging(false),
+        clickStartX(0),
+        clickStartY(0)
 {
-
-    xtranslate= 0.0;
-    ytranslate= 0.0;
-    scalemult= 0.2; //1.0;
+    // Calculate scale to fit the world on screen
+    // The world spans (0,0) to (WIDTH, HEIGHT)
+    // The top graph extends to about y = -400
+    float contentWidth = conf::WIDTH;
+    float contentHeight = conf::HEIGHT + 400; // Extra space for top graph
+    
+    float scaleX = conf::WWIDTH / contentWidth;
+    float scaleY = conf::WHEIGHT / contentHeight;
+    scalemult = std::min(scaleX, scaleY) * 0.80f; // 80% to add comfortable margin
+    
+    // Center the view on the middle of the content (accounting for top graph)
+    xtranslate = -conf::WIDTH / 2.0f;
+    ytranslate = -(conf::HEIGHT - 400) / 2.0f; // Shift up to show top graph
+    
     downb[0]=0;downb[1]=0;downb[2]=0;
     mousex=0;mousey=0;
     
@@ -89,48 +109,120 @@ GLView::~GLView()
 }
 void GLView::changeSize(int w, int h)
 {
+    // Prevent division by zero
+    if (h == 0) h = 1;
+    
+    // Check if this is a significant resize (recalculate scale on first call or major resize)
+    bool needsRescale = (windowWidth == conf::WWIDTH && windowHeight == conf::WHEIGHT);
+    
+    // Store actual window dimensions
+    windowWidth = w;
+    windowHeight = h;
+    
+    // Set viewport to cover the entire window
+    glViewport(0, 0, w, h);
 
     // Reset the coordinate system before modifying
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0,conf::WWIDTH,conf::WHEIGHT,0,0,1);
+    // Use actual window dimensions for orthographic projection
+    glOrtho(0, w, h, 0, 0, 1);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    
+    // Recalculate scale to fit the world in the new window size
+    if (needsRescale) {
+        float contentWidth = conf::WIDTH;
+        float contentHeight = conf::HEIGHT + 400; // Extra space for top graph
+        
+        float scaleX = (float)w / contentWidth;
+        float scaleY = (float)h / contentHeight;
+        scalemult = std::min(scaleX, scaleY) * 0.80f;
+    }
 }
 
 void GLView::processMouse(int button, int state, int x, int y)
 {
     //printf("MOUSE EVENT: button=%i state=%i x=%i y=%i\n", button, state, x, y);
     
-    //have world deal with it. First translate to world coordinates though
-    if(button==0){
-        int wx= (int) ((x-conf::WWIDTH/2)/scalemult)-xtranslate;
-        int wy= (int) ((y-conf::WHEIGHT/2)/scalemult)-ytranslate;
-        world->processMouse(button, state, wx, wy);
+    // Handle scroll wheel on systems that report it as buttons 3/4
+    if (button == 3) { // Scroll up
+        scalemult *= 1.1f;
+        return;
+    } else if (button == 4) { // Scroll down
+        scalemult *= 0.9f;
+        if (scalemult < 0.01f) scalemult = 0.01f;
+        return;
     }
     
-    mousex=x; mousey=y;
-    downb[button]=1-state; //state is backwards, ah well
+    if (state == 0) { // GLUT_DOWN = 0 (button pressed)
+        // Record click start position
+        clickStartX = x;
+        clickStartY = y;
+        isDragging = false;
+    } else { // Button released
+        // Left click: select agent only if it wasn't a drag
+        if (button == 0 && !isDragging) {
+            // Use actual window dimensions for coordinate transformation
+            int wx = (int) ((clickStartX - windowWidth/2) / scalemult) - xtranslate;
+            int wy = (int) ((clickStartY - windowHeight/2) / scalemult) - ytranslate;
+            // Pass state=0 because World::processMouse expects button down state
+            world->processMouse(button, 0, wx, wy);
+        }
+        isDragging = false;
+    }
+    
+    mousex = x; 
+    mousey = y;
+    if (button < 3) { // Only track standard mouse buttons, not scroll
+        downb[button] = 1 - state; // state is backwards
+    }
 }
 
 void GLView::processMouseActiveMotion(int x, int y)
 {
     //printf("MOUSE MOTION x=%i y=%i, %i %i %i\n", x, y, downb[0], downb[1], downb[2]);
     
+    // Check if this is a drag (moved more than 5 pixels from click start)
+    int dx = x - clickStartX;
+    int dy = y - clickStartY;
+    if (dx*dx + dy*dy > 25) { // 5 pixel threshold
+        isDragging = true;
+    }
+    
     if(downb[1]==1){
-        //mouse wheel. Change scale
+        // Middle mouse button: Change scale (zoom)
         scalemult -= 0.002*(y-mousey);
         if(scalemult<0.01) scalemult=0.01;
     }
     
-    if(downb[2]==1){
-        //right mouse button. Pan around
-        xtranslate += 2*(x-mousex);
-        ytranslate += 2*(y-mousey);
+    // Left mouse button OR right mouse button: Pan around
+    // Left button panning is more accessible on macOS trackpads
+    if(downb[0]==1 || downb[2]==1){
+        // Adjust panning speed based on zoom level for smoother navigation
+        float panSpeed = 1.0f / scalemult;
+        xtranslate += panSpeed * (x - mousex);
+        ytranslate += panSpeed * (y - mousey);
     }
     
 //    printf("%f %f %f \n", scalemult, xtranslate, ytranslate);
     
     mousex=x;
     mousey=y;
+}
+
+void GLView::mouseWheel(int button, int dir, int x, int y)
+{
+    // Scroll wheel zooming
+    if (dir > 0) {
+        // Scroll up: zoom in
+        scalemult *= 1.1f;
+    } else {
+        // Scroll down: zoom out
+        scalemult *= 0.9f;
+        if (scalemult < 0.01f) scalemult = 0.01f;
+    }
 }
 
 void GLView::processNormalKeys(unsigned char key, int x, int y)
@@ -184,7 +276,7 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         for (int i=0;i<10;i++){world->addCarnivore();}
     } else if (key=='h') {
         for (int i=0;i<10;i++){world->addHerbivore();}
-    }*/ else if (key=='c') {
+    }*/     else if (key=='c') {
         world->setClosed( !world->isClosed() );
         printf("Environment closed now= %i\n",world->isClosed());
     } else if (key=='x') {
@@ -193,6 +285,13 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
     } else if(key =='o') {
         if(following==0) following = 1; //follow oldest agent: toggle
         else following =0;
+    } else if (key=='i' || key=='I') {
+        // Zoom in
+        scalemult *= 1.2f;
+    } else if (key=='k' || key=='K') {
+        // Zoom out
+        scalemult *= 0.8f;
+        if (scalemult < 0.01f) scalemult = 0.01f;
     } else {
         printf("Unknown key pressed: %i\n", key);
     }
@@ -234,7 +333,8 @@ void GLView::renderScene()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
 
-    glTranslatef(conf::WWIDTH/2, conf::WHEIGHT/2, 0.0f);    
+    // Use actual window dimensions for centering
+    glTranslatef(windowWidth/2.0f, windowHeight/2.0f, 0.0f);    
     glScalef(scalemult, scalemult, 1.0f);
     
     if(following==0) {
@@ -243,8 +343,6 @@ void GLView::renderScene()
         
         float xi=0, yi=0;
         world->positionOfInterest(following, xi, yi);
-        //xi= (conf::WWIDTH/2-xi); //*scalemult;
-        //yi= (conf::WHEIGHT/2-yi); //*scalemult;
         
         glTranslatef(-xi, -yi, 0.0f);
         
