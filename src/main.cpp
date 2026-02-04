@@ -3,13 +3,9 @@
 
 #include "GLView.h"
 #include "World.h"
+#include "SimulationContext.h"
 
 #include "config.h"
-#ifdef HAVE_VTK
-#include "VTKView.h"
-#include "VTKPlotView.h"
-#include <vtkNew.h>
-#endif
 
 #ifdef LOCAL_GLUT32
     #include "glut.h"
@@ -21,13 +17,6 @@
 
 #include <stdio.h>
 
-GLView* GLVIEW = new GLView(0);
-#ifdef HAVE_VTK
-VTKView* VTKVIEW = new VTKView();
-VTKPlotView * VTKPLOTVIEW = new VTKPlotView();
-VTKSpeciesView *VTKSPECIESVIEW;
-#endif
-
 int main(int argc, char **argv) {
     conf::initialize();
     srand(time(0));
@@ -36,7 +25,6 @@ int main(int argc, char **argv) {
     printf("Pan around by holding down right mouse button, and zoom by holding down middle button.\n");
 
     World* world = nullptr;
-
 
     int opt;
     while ((opt = getopt(argc, argv, "l:s:p:c:")) != -1) {
@@ -69,7 +57,8 @@ int main(int argc, char **argv) {
     if (!world)
         world = new World();
 
-    GLVIEW->setWorld(world);
+    // Initialize the simulation context singleton with the world
+    Sim.initialize(world);
 
     //GLUT SETUP
     glutInit(&argc, argv);

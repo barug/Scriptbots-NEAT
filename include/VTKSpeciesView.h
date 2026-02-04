@@ -29,6 +29,4 @@ public:
     void saveToFile(std::ofstream &outFile);
 };
 
-extern VTKSpeciesView *VTKSPECIESVIEW;
-
 #endif //SCRIPTBOTS_VTKSPECIESVIEW_H

@@ -37,6 +37,7 @@ include_directories("include" ${CMAKE_CURRENT_BINARY_DIR} ${OPENGL_INCLUDE_DIRS}
 
 set( SB_SRCS
         src/main.cpp
+        src/SimulationContext.cpp
         src/View.cpp
         src/GLView.cpp
         src/DWRAONBrain.cpp

@@ -17,8 +17,6 @@
 #include <vtkContextView.h>
 class VTKView;
 
-extern VTKView *VTKVIEW;
-
 void VTKDraw();
 void VTKReshape(int width, int height);
 

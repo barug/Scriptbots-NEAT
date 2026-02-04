@@ -21,8 +21,6 @@
 
 class GLView;
 
-extern GLView* GLVIEW;
-
 
 
 void gl_processNormalKeys(unsigned char key, int x, int y);

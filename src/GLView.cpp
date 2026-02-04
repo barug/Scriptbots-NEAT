@@ -1,9 +1,12 @@
 #include "GLView.h"
+#include "SimulationContext.h"
 
 #include <iostream>
 #include "config.h"
 #ifdef HAVE_VTK
 #include "VTKView.h"
+#include "VTKPlotView.h"
+#include "VTKSpeciesView.h"
 #include <vtk_glew.h>
 #endif
 
@@ -21,27 +24,27 @@
 
 void gl_processNormalKeys(unsigned char key, int x, int y)
 {
-    GLVIEW->processNormalKeys(key, x, y);
+    Sim.glView()->processNormalKeys(key, x, y);
 }
 void gl_changeSize(int w, int h)
 {
-    GLVIEW->changeSize(w,h);
+    Sim.glView()->changeSize(w,h);
 }
 void gl_handleIdle()
 {
-    GLVIEW->handleIdle();
+    Sim.glView()->handleIdle();
 }
 void gl_processMouse(int button, int state, int x, int y)
 {
-    GLVIEW->processMouse(button, state, x, y);
+    Sim.glView()->processMouse(button, state, x, y);
 }
 void gl_processMouseActiveMotion(int x, int y)
 {
-    GLVIEW->processMouseActiveMotion(x,y);
+    Sim.glView()->processMouseActiveMotion(x,y);
 }
 void gl_renderScene()
 {
-    GLVIEW->renderScene();
+    Sim.glView()->renderScene();
 }
 
 
@@ -64,7 +67,7 @@ void drawCircle(float x, float y, float r) {
 
 
 GLView::GLView(World *s) :
-        world(world),
+        world(s),
         paused(false),
         draw(true),
         skipdraw(1),
@@ -149,21 +152,21 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
     }
 #ifdef HAVE_VTK
     else if (key=='e') { //dezoom
-        VTKVIEW->zoom(0.95);
+        Sim.vtkView()->zoom(0.95);
     } else if (key=='a') { //zoom
-        VTKVIEW->zoom(1.05);
+        Sim.vtkView()->zoom(1.05);
     } else if (key=='z') { //up
-        VTKVIEW->move(0, -5);
+        Sim.vtkView()->move(0, -5);
     } else if (key=='s') { //down
-        VTKVIEW->move(0, 5);
+        Sim.vtkView()->move(0, 5);
     } else if (key=='q') { //left
-        VTKVIEW->move(5, 0);
+        Sim.vtkView()->move(5, 0);
     } else if (key=='d') { //right
-        VTKVIEW->move(-5, 0);
+        Sim.vtkView()->move(-5, 0);
     } else if (key=='t') {
-        VTKSPECIESVIEW->startInteraction();
+        Sim.vtkSpeciesView()->startInteraction();
     } else if (key=='y') {
-        VTKPLOTVIEW->startInteraction();
+        Sim.vtkPlotView()->startInteraction();
     }
 #endif
     else if (key=='p') {

@@ -24,10 +24,6 @@
 #include "vtkTextProperty.h"
 #include <vtkPlotLine.h>
 
-class VTKPlotView;
-
-extern VTKPlotView *VTKPLOTVIEW;
-
 class VTKPlotView {
     vtkNew<vtkContextView> _view;
     vtkNew<vtkTable> _data;
