@@ -8,9 +8,7 @@ class World;
 class GLView;
 
 #ifdef HAVE_VTK
-class VTKView;
-class VTKPlotView;
-class VTKSpeciesView;
+class VTKDashboard;
 #endif
 
 /**
@@ -61,16 +59,10 @@ public:
     const GLView* glView() const { return glView_; }
     
 #ifdef HAVE_VTK
-    VTKView* vtkView() { return vtkView_; }
-    const VTKView* vtkView() const { return vtkView_; }
+    VTKDashboard* vtkDashboard() { return vtkDashboard_; }
+    const VTKDashboard* vtkDashboard() const { return vtkDashboard_; }
     
-    VTKPlotView* vtkPlotView() { return vtkPlotView_; }
-    const VTKPlotView* vtkPlotView() const { return vtkPlotView_; }
-    
-    VTKSpeciesView* vtkSpeciesView() { return vtkSpeciesView_; }
-    const VTKSpeciesView* vtkSpeciesView() const { return vtkSpeciesView_; }
-    
-    void setVtkSpeciesView(VTKSpeciesView* view) { vtkSpeciesView_ = view; }
+    void setVtkDashboard(VTKDashboard* dashboard) { vtkDashboard_ = dashboard; }
     
     bool hasVtk() const { return true; }
 #else
@@ -91,9 +83,7 @@ private:
     GLView* glView_;
     
 #ifdef HAVE_VTK
-    VTKView* vtkView_;
-    VTKPlotView* vtkPlotView_;
-    VTKSpeciesView* vtkSpeciesView_;
+    VTKDashboard* vtkDashboard_;
 #endif
 };
 

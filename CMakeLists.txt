@@ -75,9 +75,7 @@ set( SB_SRCS
 # Add VTK sources only if VTK is found
 if (VTK_FOUND)
     list(APPEND SB_SRCS
-        src/VTKView.cpp
-        src/VTKPlotView.cpp
-        src/VTKSpeciesView.cpp)
+        src/VTKDashboard.cpp)
 endif()
 
 add_executable(scriptbots  ${SB_SRCS})

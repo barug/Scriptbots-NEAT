@@ -4,9 +4,7 @@
 #include <iostream>
 #include "config.h"
 #ifdef HAVE_VTK
-#include "VTKView.h"
-#include "VTKPlotView.h"
-#include "VTKSpeciesView.h"
+#include "VTKDashboard.h"
 #endif
 
 #ifdef LOCAL_GLUT32
@@ -150,22 +148,20 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         std::cout << "end" << std::endl;
     }
 #ifdef HAVE_VTK
-    else if (key=='e') { //dezoom
-        Sim.vtkView()->zoom(0.95);
-    } else if (key=='a') { //zoom
-        Sim.vtkView()->zoom(1.05);
-    } else if (key=='z') { //up
-        Sim.vtkView()->move(0, -5);
-    } else if (key=='s') { //down
-        Sim.vtkView()->move(0, 5);
-    } else if (key=='q') { //left
-        Sim.vtkView()->move(5, 0);
-    } else if (key=='d') { //right
-        Sim.vtkView()->move(-5, 0);
-    } else if (key=='t') {
-        Sim.vtkSpeciesView()->startInteraction();
-    } else if (key=='y') {
-        Sim.vtkPlotView()->startInteraction();
+    else if (key=='e') { //dezoom graph
+        Sim.vtkDashboard()->zoomGraph(0.95);
+    } else if (key=='a') { //zoom graph
+        Sim.vtkDashboard()->zoomGraph(1.05);
+    } else if (key=='z') { //move graph up
+        Sim.vtkDashboard()->moveGraph(0, -5);
+    } else if (key=='s') { //move graph down
+        Sim.vtkDashboard()->moveGraph(0, 5);
+    } else if (key=='q') { //move graph left
+        Sim.vtkDashboard()->moveGraph(5, 0);
+    } else if (key=='d') { //move graph right
+        Sim.vtkDashboard()->moveGraph(-5, 0);
+    } else if (key=='v') { //show VTK dashboard
+        Sim.vtkDashboard()->startInteraction();
     }
 #endif
     else if (key=='p') {

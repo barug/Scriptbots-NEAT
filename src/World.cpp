@@ -10,9 +10,7 @@
 #include <stdio.h>
 
 #ifdef HAVE_VTK
-#include "VTKView.h"
-#include "VTKPlotView.h"
-#include "VTKSpeciesView.h"
+#include "VTKDashboard.h"
 #endif
 
 using namespace std;
@@ -39,7 +37,7 @@ World::World() :
     ptr=0;
 
 #ifdef HAVE_VTK
-    Sim.setVtkSpeciesView(new VTKSpeciesView());
+    Sim.setVtkDashboard(new VTKDashboard());
 #endif
 }
 
@@ -105,7 +103,7 @@ World::World(std::string path) :
         throw std::runtime_error("allSpeciesEnd");
 
 #ifdef HAVE_VTK
-    Sim.setVtkSpeciesView(new VTKSpeciesView(inFile));
+    Sim.setVtkDashboard(new VTKDashboard(inFile));
 #endif
 
         inFile >> wordBuff;
@@ -135,13 +133,13 @@ void World::update()
         numHerbivore[ptr]= num_herbs_carns.first;
         numCarnivore[ptr]= num_herbs_carns.second;
 #ifdef HAVE_VTK
-        Sim.vtkPlotView()->addDataRow(num_herbs_carns.first, num_herbs_carns.second);
+        Sim.vtkDashboard()->addPopulationData(num_herbs_carns.first, num_herbs_carns.second);
 #endif
         ptr++;
         if(ptr == numHerbivore.size()) ptr = 0;
         removeShortLivedSpecies();
 #ifdef HAVE_VTK
-        Sim.vtkSpeciesView()->addSpeciesData(all_species);
+        Sim.vtkDashboard()->addSpeciesData(all_species);
 #endif
     }
     //if (modcounter%1000==0) writeReport();
@@ -690,7 +688,7 @@ void World::printToFile(std::string path)
     outFile << "allSpeciesEnd" << std::endl;
 
 #ifdef HAVE_VTK
-    Sim.vtkSpeciesView()->saveToFile(outFile);
+    Sim.vtkDashboard()->saveToFile(outFile);
 #endif
 
     outFile << "worldEnd" << std::endl;
@@ -919,7 +917,7 @@ void World::processMouse(int button, int state, int x, int y)
          agents[mini]->selectflag= true;
          agents[mini]->printSelf();
 #ifdef HAVE_VTK
-         Sim.vtkView()->displayAgentInfo(agents[mini]);
+         Sim.vtkDashboard()->displayAgentInfo(agents[mini]);
 #endif
      }
 }

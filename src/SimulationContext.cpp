@@ -3,9 +3,7 @@
 #include "GLView.h"
 
 #ifdef HAVE_VTK
-#include "VTKView.h"
-#include "VTKPlotView.h"
-#include "VTKSpeciesView.h"
+#include "VTKDashboard.h"
 
 // VTK auto-initialization for OpenGL2 rendering backend
 #include <vtkAutoInit.h>
@@ -25,9 +23,7 @@ SimulationContext::SimulationContext()
     , world_(nullptr)
     , glView_(nullptr)
 #ifdef HAVE_VTK
-    , vtkView_(nullptr)
-    , vtkPlotView_(nullptr)
-    , vtkSpeciesView_(nullptr)
+    , vtkDashboard_(nullptr)
 #endif
 {
 }
@@ -47,9 +43,7 @@ void SimulationContext::initialize(World* world) {
     glView_ = new GLView(world_);
     
 #ifdef HAVE_VTK
-    vtkView_ = new VTKView();
-    vtkPlotView_ = new VTKPlotView();
-    // Note: vtkSpeciesView_ is created by World during construction
+    // VTKDashboard is created by World during construction
     // because it may need to load from a save file
 #endif
     
