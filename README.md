@@ -43,10 +43,12 @@ The following features were implemented on top of the original Scriptbots simula
 - All major simulation parameters are configurable
 - Settings are saved/loaded with world state
 
-### VTK Visualization (Optional)
-- **Neural network graph view**: Visualize the brain structure of selected agents
-- **Species population view**: Track species populations over time
-- **Population plot**: Herbivore vs carnivore population graphs
+### VTK Dashboard (Optional)
+- **Unified dashboard window** with three visualization panels:
+  - **Neural network graph** (top-left): Visualize the brain structure of selected agents
+  - **Population plot** (top-right): Herbivore vs carnivore population over time
+  - **Species chart** (bottom): Stacked area chart showing species populations
+- **Automatic window layout**: Dashboard on left, simulation on right (half-screen each)
 - Interactive pan/zoom for network visualization
 
 ---
@@ -147,6 +149,8 @@ Options:
 
 ## Controls
 
+### Simulation Window - Keyboard
+
 | Key | Action |
 |-----|--------|
 | `p` | Pause/Resume simulation |
@@ -154,6 +158,8 @@ Options:
 | `g` | Toggle food rendering |
 | `+` | Increase simulation speed (skip frames) |
 | `-` | Decrease simulation speed |
+| `i` | Zoom in |
+| `k` | Zoom out |
 | `r` | Reset world |
 | `m` | Save world to file |
 | `c` | Toggle closed environment (no random bot spawning) |
@@ -161,21 +167,23 @@ Options:
 | `o` | Follow oldest agent |
 | `Esc` | Exit |
 
-### Mouse Controls
+### Simulation Window - Mouse
 
-- **Left click**: Select an agent (displays info)
-- **Right drag**: Pan the view
+- **Left click**: Select an agent (displays neural network in VTK dashboard)
+- **Left drag** or **Right drag**: Pan the view
 - **Middle drag**: Zoom in/out
 
-### VTK Controls (if enabled)
+### VTK Dashboard - Neural Network Controls
+
+These keyboard shortcuts control the neural network graph view in the VTK dashboard:
 
 | Key | Action |
 |-----|--------|
-| `a` | Zoom in (neural network view) |
-| `e` | Zoom out (neural network view) |
-| `z/s/q/d` | Pan neural network view |
-| `t` | Open species view |
-| `y` | Open population plot |
+| `a` | Zoom in (neural network graph) |
+| `e` | Zoom out (neural network graph) |
+| `z/s/q/d` | Pan neural network graph (up/down/left/right) |
+
+> **Note**: The VTK Dashboard window is display-only. Clicking on it has no effect.
 
 ## Configuration
 
