@@ -32,6 +32,14 @@ int main(int argc, char **argv) {
     // Initialize GLUT first (before VTK which may also use GLUT)
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
+    
+    // Get screen dimensions
+    int screenWidth = glutGet(GLUT_SCREEN_WIDTH);
+    int screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+    
+    // Calculate window sizes (each takes half the screen)
+    int halfWidth = screenWidth / 2;
+    int winHeight = screenHeight - 45; // Leave space for menu bar
 
     // Now create the world (which creates VTKDashboard)
     World* world = nullptr;
@@ -70,9 +78,10 @@ int main(int argc, char **argv) {
     // Initialize the simulation context singleton with the world
     Sim.initialize(world);
     
-    // Position and size the GLUT window (simulation view)
-    glutInitWindowPosition(30, 30);
-    glutInitWindowSize(conf::WWIDTH, conf::WHEIGHT);
+    // Create GLUT window on RIGHT half (VTK will default to left)
+    // GLUT: Y=0 is top of screen
+    glutInitWindowPosition(halfWidth, 45);
+    glutInitWindowSize(halfWidth, winHeight);
     glutCreateWindow("Scriptbots - Simulation");
     glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
     glutDisplayFunc(gl_renderScene);
@@ -90,8 +99,9 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef HAVE_VTK
-    // Show the VTK dashboard window
+    // Show VTK window on LEFT half (default position)
     if (Sim.vtkDashboard()) {
+        Sim.vtkDashboard()->setWindowGeometry(0, 0, halfWidth, winHeight);
         Sim.vtkDashboard()->show();
     }
 #endif

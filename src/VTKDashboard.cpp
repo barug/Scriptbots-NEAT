@@ -136,6 +136,9 @@ void VTKDashboard::setWindowGeometry(int x, int y, int width, int height) {
     windowY_ = y;
     windowW_ = width;
     windowH_ = height;
+    
+    // Only set size - position doesn't work reliably on macOS
+    renderWindow_->SetSize(width, height);
 }
 
 void VTKDashboard::setupGraphView() {
@@ -399,8 +402,8 @@ void VTKDashboard::renderSpeciesChart() {
 
 void VTKDashboard::show() {
     isVisible_ = true;
-    renderWindow_->SetShowWindow(true);
     renderWindow_->SetSize(windowW_, windowH_);
+    renderWindow_->SetShowWindow(true);
     renderWindow_->Render();
 }
 
