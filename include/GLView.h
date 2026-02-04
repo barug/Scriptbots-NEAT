@@ -43,6 +43,7 @@ public:
     void changeSize(int w, int h);
     void handleIdle();
     void renderScene();
+    void drawHelpOverlay();
     
 private:
     

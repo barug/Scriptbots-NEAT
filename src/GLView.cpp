@@ -252,8 +252,6 @@ void GLView::processNormalKeys(unsigned char key, int x, int y)
         Sim.vtkDashboard()->moveGraph(5, 0);
     } else if (key=='d') { //move graph right
         Sim.vtkDashboard()->moveGraph(-5, 0);
-    } else if (key=='v') { //show VTK dashboard
-        Sim.vtkDashboard()->startInteraction();
     }
 #endif
     else if (key=='p') {
@@ -353,8 +351,26 @@ void GLView::renderScene()
     world->draw(this, drawfood);
 
     glPopMatrix();
+    
+    // Draw help overlay in screen coordinates
+    drawHelpOverlay();
+    
     glutSwapBuffers();
 
+}
+
+void GLView::drawHelpOverlay()
+{
+    // Draw help text in the corner of the screen
+    int y = 20;
+    int lineHeight = 14;
+    float c = 0.3f; // text color (gray)
+    
+    RenderString(10, y, GLUT_BITMAP_HELVETICA_12, "Simulation: p=pause  f=skip draw  g=food  +/-=speed  c=close world", c, c, c);
+    y += lineHeight;
+    RenderString(10, y, GLUT_BITMAP_HELVETICA_12, "Navigation: drag=pan  i/k or scroll=zoom  click=select agent", c, c, c);
+    y += lineHeight;
+    RenderString(10, y, GLUT_BITMAP_HELVETICA_12, "Follow: x=selected  o=oldest", c, c, c);
 }
 
 void GLView::drawAgent(const Agent *agent)
@@ -621,8 +637,7 @@ void GLView::drawMisc()
     glVertex3f(world->ptr*10,-mm*100,0);
     glEnd();
     
-    RenderString(2500, -80, GLUT_BITMAP_TIMES_ROMAN_24, "Press d for extra speed", 0.0f, 0.0f, 0.0f);
-    RenderString(2500, -20, GLUT_BITMAP_TIMES_ROMAN_24, "Press s to follow selected agent, o to follow oldest", 0.0f, 0.0f, 0.0f);
+    // Help text is now shown in the overlay
 }
 
 void GLView::drawFood(int x, int y, float quantity)

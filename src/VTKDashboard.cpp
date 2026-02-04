@@ -3,6 +3,15 @@
 //
 
 #include "VTKDashboard.h"
+#include "config.h"
+
+#ifdef LOCAL_GLUT32
+#include "glut.h"
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
 
 #include <vtkActor.h>
 #include <vtkPolyDataMapper.h>
@@ -16,6 +25,7 @@
 #include <vtkVariantArray.h>
 #include <vtkAxis.h>
 #include <vtkTextProperty.h>
+#include <vtkTextActor.h>
 
 #include "NEAT/nnode.h"
 
@@ -125,10 +135,8 @@ void VTKDashboard::setupWindow() {
     renderWindow_->SetWindowName("Scriptbots Dashboard");
     renderWindow_->SetSize(800, 900);
     
-    interactor_->SetRenderWindow(renderWindow_.GetPointer());
-    
-    // Don't render here - defer until after GLUT is initialized in main()
-    // The show() method will be called from main() after glutInit()
+    // Explicitly set no interactor - prevents VTK from handling any input
+    renderWindow_->SetInteractor(nullptr);
 }
 
 void VTKDashboard::setWindowGeometry(int x, int y, int width, int height) {
@@ -153,6 +161,15 @@ void VTKDashboard::setupGraphView() {
     graphLayout_->SetInputData(graph_.GetPointer());
 
     graphCamera_ = graphRenderer_->GetActiveCamera();
+    
+    // Add help text overlay
+    vtkNew<vtkTextActor> helpText;
+    helpText->SetInput("Neural Network  |  a/e=zoom  zqsd=pan");
+    helpText->GetTextProperty()->SetFontSize(12);
+    helpText->GetTextProperty()->SetColor(0.7, 0.7, 0.7);
+    helpText->GetPositionCoordinate()->SetCoordinateSystemToNormalizedViewport();
+    helpText->GetPositionCoordinate()->SetValue(0.02, 0.02);
+    graphRenderer_->AddActor2D(helpText.GetPointer());
 }
 
 void VTKDashboard::setupPopulationPlot() {
@@ -270,6 +287,9 @@ void VTKDashboard::displayAgentInfo(const Agent *agent) {
     if (isVisible_) {
         renderWindow_->Render();
     }
+    
+    // Force GLUT to resume processing after VTK render
+    glutPostRedisplay();
 }
 
 void VTKDashboard::zoomGraph(double factor) {
