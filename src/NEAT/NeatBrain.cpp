@@ -26,15 +26,15 @@ NEATBrain::NEATBrain(std::ifstream &inFile) {
 NEATBrain::NEATBrain(const NEATBrain &other)
 {
     _gen = other._gen->duplicate(0);
-    _net = nullptr;
+    _net = _gen->genesis(0);
 }
 
 NEATBrain& NEATBrain::operator=(const NEATBrain& other) {
     if( this != &other ) {
+        delete _gen;
+        if (_net) delete _net;
         _gen = other._gen->duplicate(0);
-        _net = nullptr;
-    } else {
-        cout << "copy of brain failed" << endl;
+        _net = _gen->genesis(0);
     }
     return *this;
 }
@@ -54,6 +54,7 @@ void NEATBrain::initiateBasicBrain() {
 NEATBrain *NEATBrain::duplicate() {
     NEATBrain *newBrain = new NEATBrain();
     newBrain->_gen = _gen->duplicate(0);
+    newBrain->_net = newBrain->_gen->genesis(0);
     return newBrain;
 }
 
@@ -96,6 +97,7 @@ void NEATBrain::mutate(float MR, float MR2, std::vector<NEAT::Innovation*> &inno
 
     if (_net)
         delete _net;
+    _net = _gen->genesis(0);
 }
 
 void NEATBrain::generateNetwork() {
@@ -109,7 +111,8 @@ double NEATBrain::compatibility(NEATBrain *other) {
 NEATBrain *NEATBrain::crossover( const NEATBrain *other )
 {
     NEATBrain *newBrain = new NEATBrain();
-    newBrain->_gen = other->_gen->mate_multipoint(other->_gen, randf(0, 1), 0, randf(0, 1), 0);
+    newBrain->_gen = this->_gen->mate_multipoint(other->_gen, randf(0, 1), 0, randf(0, 1), 0);
+    newBrain->_net = newBrain->_gen->genesis(0);
     return newBrain;
 }
 

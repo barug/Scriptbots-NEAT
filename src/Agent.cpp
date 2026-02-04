@@ -14,6 +14,8 @@ using namespace std;
 using namespace NEAT;
 
 Agent::Agent()
+    : brain(nullptr)
+    , species(nullptr)
 {
     pos= Vector2f(randf(0,conf::WIDTH),randf(0,conf::HEIGHT));
     angle= randf(-M_PI,M_PI);
@@ -222,8 +224,7 @@ Agent *Agent::mate(const Agent* other, vector<NEAT::Innovation*> &innovations, d
     if (anew->pos.y>=conf::HEIGHT) anew->pos.y= anew->pos.y-conf::HEIGHT;
 
     anew->hybrid=true; //set this non-default flag
-    anew->gencount= this->gencount;
-    if (other->gencount<anew->gencount) anew->gencount= other->gencount;
+    anew->gencount= std::max(this->gencount, other->gencount) + 1;
 
     //agent heredity attributes
     anew->clockf1= randf(0,1)<0.5 ? this->clockf1 : other->clockf1;

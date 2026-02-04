@@ -90,7 +90,7 @@ Agent *Species::first()
 
 int Species::getNumberOfAgents()
 {
-    _agents.size();
+    return _agents.size();
 }
 
 int Species::empty()
