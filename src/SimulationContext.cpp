@@ -6,6 +6,13 @@
 #include "VTKView.h"
 #include "VTKPlotView.h"
 #include "VTKSpeciesView.h"
+
+// VTK auto-initialization for OpenGL2 rendering backend
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkRenderingOpenGL2)
+VTK_MODULE_INIT(vtkRenderingContextOpenGL2)
+VTK_MODULE_INIT(vtkInteractionStyle)
+VTK_MODULE_INIT(vtkRenderingFreeType)
 #endif
 
 SimulationContext& SimulationContext::instance() {

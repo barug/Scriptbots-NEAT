@@ -18,7 +18,9 @@ VTKPlotView::VTKPlotView()
     _data->AddColumn(numCarn.GetPointer());
 
     _view->GetRenderWindow()->SetSize(800, 400);
-    _view->Render();
+    _view->GetRenderWindow()->SetWindowName("Population Plot");
+    // Start with window hidden - will show when data is first added
+    _view->GetRenderWindow()->SetShowWindow(false);
 }
 
 void VTKPlotView::addDataRow(int numHerb, int numCarn)
@@ -62,5 +64,7 @@ void VTKPlotView::addDataRow(int numHerb, int numCarn)
 
 void VTKPlotView::startInteraction()
 {
+    _view->GetRenderWindow()->SetShowWindow(true);
+    _view->Render();
     _view->GetInteractor()->Start();
 }

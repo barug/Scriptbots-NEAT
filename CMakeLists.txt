@@ -21,12 +21,25 @@ if (OPENMP_FOUND)
     SET (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 endif()
 
-# VTK is optional
-find_package(VTK QUIET)
+# VTK is optional - use modern VTK 9.x approach
+find_package(VTK QUIET COMPONENTS
+    CommonCore
+    CommonDataModel
+    FiltersSources
+    InteractionStyle
+    RenderingCore
+    RenderingOpenGL2
+    RenderingFreeType
+    RenderingContextOpenGL2
+    ChartsCore
+    ViewsContext2D
+    ViewsInfovis
+    InfovisLayout
+    IOLegacy
+)
 if (VTK_FOUND)
     SET (HAVE_VTK 1)
-    include(${VTK_USE_FILE})
-    message(STATUS "VTK found - building with VTK support")
+    message(STATUS "VTK found (version ${VTK_VERSION}) - building with VTK support")
 else()
     message(STATUS "VTK not found - building without VTK support")
 endif()
@@ -71,6 +84,10 @@ add_executable(scriptbots  ${SB_SRCS})
 
 if (VTK_FOUND)
     target_link_libraries(scriptbots ${VTK_LIBRARIES})
+    vtk_module_autoinit(
+        TARGETS scriptbots
+        MODULES ${VTK_LIBRARIES}
+    )
 endif()
 
 if (WIN32 AND NOT GLUT_FOUND)

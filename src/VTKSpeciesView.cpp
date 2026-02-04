@@ -21,7 +21,9 @@ VTKSpeciesView::VTKSpeciesView() :
     _xCounter(0)
 {
     _view->GetRenderWindow()->SetSize(800, 400);
-    _view->Render();
+    _view->GetRenderWindow()->SetWindowName("Species View");
+    // Start with window hidden - will show when data is first added
+    _view->GetRenderWindow()->SetShowWindow(false);
 }
 
 VTKSpeciesView::VTKSpeciesView(std::ifstream &inFile)
@@ -116,7 +118,9 @@ VTKSpeciesView::VTKSpeciesView(std::ifstream &inFile)
     cout << "finished loading species view"<< endl;
 
     _view->GetRenderWindow()->SetSize(800, 400);
-    renderData();
+    _view->GetRenderWindow()->SetWindowName("Species View");
+    // Start with window hidden - will show when interaction is requested
+    _view->GetRenderWindow()->SetShowWindow(false);
 }
 
 
@@ -228,6 +232,8 @@ void VTKSpeciesView::renderData()
 
 void VTKSpeciesView::startInteraction()
 {
+    _view->GetRenderWindow()->SetShowWindow(true);
+    renderData();
     _view->GetInteractor()->Start();
 }
 

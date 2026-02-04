@@ -7,7 +7,6 @@
 #include "VTKView.h"
 #include "VTKPlotView.h"
 #include "VTKSpeciesView.h"
-#include <vtk_glew.h>
 #endif
 
 #ifdef LOCAL_GLUT32

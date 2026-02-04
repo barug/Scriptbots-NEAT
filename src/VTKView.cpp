@@ -6,6 +6,8 @@
 
 #ifdef LOCAL_GLUT32
 #include "glut.h"
+#elif defined(__APPLE__)
+#include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
 #endif

@@ -6,18 +6,8 @@
 #include "World.h"
 #include "config.h"
 
-#ifdef HAVE_VTK
-#include <vtk_glew.h>
-#include <ExternalVTKWidget.h>
-#include <vtkActor.h>
-#include <vtkCallbackCommand.h>
-#include <vtkCamera.h>
-#include <vtkCubeSource.h>
-#include <vtkExternalOpenGLRenderWindow.h>
-#include <vtkLight.h>
-#include <vtkNew.h>
-#include <vtkPolyDataMapper.h>
-#endif
+// VTK includes removed - GLView doesn't directly use VTK,
+// VTK rendering is handled by VTKView, VTKPlotView, VTKSpeciesView
 
 class GLView;
 
